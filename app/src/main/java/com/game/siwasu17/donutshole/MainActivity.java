@@ -72,42 +72,13 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void callTiqavService(){
-        //okhttpのclient作成
-        OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
-        httpClient.addInterceptor(new Interceptor() {
-            @Override
-            public Response intercept(Interceptor.Chain chain) throws IOException {
-                Request original = chain.request();
-
-                //header設定
-                Request request = original.newBuilder()
-                        .header("Accept", "application/json")
-                        .method(original.method(), original.body())
-                        .build();
-
-                return chain.proceed(request);
-            }
-        });
-
-        //ログ出力設定
-        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-        logging.setLevel(HttpLoggingInterceptor.Level.BASIC);
-        httpClient.addInterceptor(logging);
-
-
-        //クライアント生成
-        OkHttpClient client = httpClient.build();
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://api.tiqav.com/")//基本のurl設定
-                .addConverterFactory(GsonConverterFactory.create())//Gsonの使用
-                .client(client)//カスタマイズしたokhttpのクライアントの設定
-                .build();
-
         //Interfaceから実装を取得
-        TiqavService API = retrofit.create(TiqavService.class);
+        TiqavService tiqavService = ServiceFactory.createTiqavService();
 
+        //Call<ImageEntry[]> apiCall = tiqavService.search("ちくわ");
+        Call<ImageEntry[]> apiCall = tiqavService.searchRandom();
         //実行
-        API.searchNewest().enqueue(new Callback<ImageEntry[]>() {
+        apiCall.enqueue(new Callback<ImageEntry[]>() {
             @Override
             public void onResponse(Call<ImageEntry[]> call, retrofit2.Response<ImageEntry[]> response) {
                 if (response.isSuccessful()) {
@@ -115,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
                     ImageEntry[] result = response.body();
 
                     for(ImageEntry e : result){
-                        Log.d("ImageEntity", e.id);
+                        Log.d("ImageEntity", "http://img.tiqav.com/" + e.id + "." + e.ext);
                     }
                 } else {
                     //通信が成功したが、エラーcodeが返ってきた場合はこちら
