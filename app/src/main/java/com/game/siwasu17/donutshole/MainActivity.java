@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
         TiqavService tiqavService = ServiceFactory.createTiqavService();
 
         //Call<ImageEntry[]> apiCall = tiqavService.search("ちくわ");
-        Call<ImageEntry[]> apiCall = tiqavService.searchRandom();
+        Call<ImageEntry[]> apiCall = tiqavService.searchNewest();
         //実行
         apiCall.enqueue(new Callback<ImageEntry[]>() {
             @Override
