@@ -1,5 +1,7 @@
 package com.game.siwasu17.donutshole;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -8,22 +10,17 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.game.siwasu17.donutshole.models.ImageEntry;
 import com.game.siwasu17.donutshole.services.TiqavService;
 
-import java.io.IOException;
-
-import okhttp3.Interceptor;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.logging.HttpLoggingInterceptor;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -71,13 +68,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void callTiqavService(){
+    private void callTiqavService() {
         //Interfaceから実装を取得
         TiqavService tiqavService = ServiceFactory.createTiqavService();
 
         //Call<ImageEntry[]> apiCall = tiqavService.search("ちくわ");
-        Call<ImageEntry[]> apiCall = tiqavService.searchNewest();
-        //実行
+        Observable<ImageEntry[]> apiCall = tiqavService.searchNewest();
+
+        apiCall.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(event -> {
+                            System.out.println(event.toString());
+                        }
+                        , Throwable::printStackTrace);
+
+/*
         apiCall.enqueue(new Callback<ImageEntry[]>() {
             @Override
             public void onResponse(Call<ImageEntry[]> call, retrofit2.Response<ImageEntry[]> response) {
@@ -85,8 +90,30 @@ public class MainActivity extends AppCompatActivity {
                     //通信結果をオブジェクトで受け取る
                     ImageEntry[] result = response.body();
 
-                    for(ImageEntry e : result){
+                    for (ImageEntry e : result) {
                         Log.d("ImageEntity", "http://img.tiqav.com/" + e.id + "." + e.ext);
+                    }
+
+                    String imgURL = "http://img.tiqav.com/" + result[0].id + "." + result[0].ext;
+
+                    //普通のviewの生成
+                    ImageView oImg = new ImageView(getApplicationContext());
+                    URL url;
+                    InputStream istream;
+                    try {
+                        //画像のURLを直うち
+                        url = new URL(imgURL);
+                        //インプットストリームで画像を読み込む
+                        istream = url.openStream();
+                        //読み込んだファイルをビットマップに変換
+                        Bitmap oBmp = BitmapFactory.decodeStream(istream);
+                        //ビットマップをImageViewに設定
+                        oImg.setImageBitmap(oBmp);
+                        //インプットストリームを閉じる
+                        istream.close();
+                    } catch (IOException e) {
+                        // TODO 自動生成された catch ブロック
+                        e.printStackTrace();
                     }
                 } else {
                     //通信が成功したが、エラーcodeが返ってきた場合はこちら
@@ -100,9 +127,9 @@ public class MainActivity extends AppCompatActivity {
                 t.printStackTrace();
             }
         });
+        */
 
     }
-
 
 
 }

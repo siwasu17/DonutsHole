@@ -10,6 +10,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
@@ -51,6 +52,7 @@ public class ServiceFactory {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://api.tiqav.com/")//基本のurl設定
                 .addConverterFactory(GsonConverterFactory.create())//Gsonの使用
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .client(client)//カスタマイズしたokhttpのクライアントの設定
                 .build();
 
