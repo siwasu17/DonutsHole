@@ -1,22 +1,18 @@
 package com.game.siwasu17.donutshole;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.game.siwasu17.donutshole.models.ImageEntry;
 import com.game.siwasu17.donutshole.services.TiqavService;
+import com.squareup.picasso.Picasso;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -27,6 +23,8 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView mTextMessage;
     private Button mCallButton;
+    private ImageView mImageView;
+    private Picasso mPicasso;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -58,17 +56,16 @@ public class MainActivity extends AppCompatActivity {
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
+        mImageView = (ImageView) findViewById(R.id.image_view);
+        mPicasso = Picasso.with(this);
+
         mCallButton = (Button) findViewById(R.id.call_button);
-        mCallButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                callTiqavService();
-            }
-        });
+        mCallButton.setOnClickListener(view -> callTiqavService());
     }
 
 
     private void callTiqavService() {
+
         //Interfaceから実装を取得
         TiqavService tiqavService = ServiceFactory.createTiqavService();
 
@@ -78,56 +75,11 @@ public class MainActivity extends AppCompatActivity {
         apiCall.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(event -> {
-                            System.out.println(event.toString());
+                            System.out.println(event);
+                            mPicasso.load("http://img.tiqav.com/" + event[0].id + "." + event[0].ext).into(mImageView);
                         }
-                        , Throwable::printStackTrace);
-
-/*
-        apiCall.enqueue(new Callback<ImageEntry[]>() {
-            @Override
-            public void onResponse(Call<ImageEntry[]> call, retrofit2.Response<ImageEntry[]> response) {
-                if (response.isSuccessful()) {
-                    //通信結果をオブジェクトで受け取る
-                    ImageEntry[] result = response.body();
-
-                    for (ImageEntry e : result) {
-                        Log.d("ImageEntity", "http://img.tiqav.com/" + e.id + "." + e.ext);
-                    }
-
-                    String imgURL = "http://img.tiqav.com/" + result[0].id + "." + result[0].ext;
-
-                    //普通のviewの生成
-                    ImageView oImg = new ImageView(getApplicationContext());
-                    URL url;
-                    InputStream istream;
-                    try {
-                        //画像のURLを直うち
-                        url = new URL(imgURL);
-                        //インプットストリームで画像を読み込む
-                        istream = url.openStream();
-                        //読み込んだファイルをビットマップに変換
-                        Bitmap oBmp = BitmapFactory.decodeStream(istream);
-                        //ビットマップをImageViewに設定
-                        oImg.setImageBitmap(oBmp);
-                        //インプットストリームを閉じる
-                        istream.close();
-                    } catch (IOException e) {
-                        // TODO 自動生成された catch ブロック
-                        e.printStackTrace();
-                    }
-                } else {
-                    //通信が成功したが、エラーcodeが返ってきた場合はこちら
-                    Log.d("RETROFIT_TEST", "error_code" + response.code());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ImageEntry[]> call, Throwable t) {
-                //通信が失敗した場合など
-                t.printStackTrace();
-            }
-        });
-        */
+                        , Throwable::printStackTrace
+                );
 
     }
 

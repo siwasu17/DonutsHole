@@ -16,7 +16,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 /**
  * Created by yasu on 2017/07/09.
  */
-
 public class ServiceFactory {
     public static OkHttpClient buildJsonHttpClient(){
 
