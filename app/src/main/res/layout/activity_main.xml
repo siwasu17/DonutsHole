@@ -9,6 +9,37 @@
     android:orientation="vertical"
     tools:context="com.game.siwasu17.donutshole.MainActivity">
 
+<!--
+        <ImageView
+            android:id="@+id/image_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
+            -->
+
+        <Button
+            android:id="@+id/call_button"
+            android:text="Call"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            />
+
+
+        <GridView
+            android:id="@+id/gridview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:columnWidth="100dp"
+            android:minHeight="100dp"
+            android:numColumns="auto_fit"
+            android:verticalSpacing="8dp"
+            android:horizontalSpacing="8dp"
+            android:stretchMode="columnWidth"
+            android:gravity="center"/>
+
+
+    <!--
     <FrameLayout
         android:id="@+id/content"
         android:layout_width="match_parent"
@@ -40,6 +71,7 @@
             />
 
     </FrameLayout>
+    -->
 
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/navigation"

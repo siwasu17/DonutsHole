@@ -12,11 +12,11 @@ import retrofit2.http.Query;
  */
 public interface TiqavService {
     @GET("search.json")
-    Call<ImageEntry[]> search(@Query("q") String query);
+    Observable<ImageEntry[]> search(@Query("q") String query);
 
     @GET("search/newest.json")
     Observable<ImageEntry[]> searchNewest();
 
     @GET("search/random.json")
-    Call<ImageEntry[]> searchRandom();
+    Observable<ImageEntry[]> searchRandom();
 }
