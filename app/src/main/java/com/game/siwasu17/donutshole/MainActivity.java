@@ -16,6 +16,7 @@ import com.game.siwasu17.donutshole.services.TiqavService;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -64,8 +65,8 @@ public class MainActivity extends AppCompatActivity {
         // グリッドビュー
         mGridView = (GridView) findViewById(R.id.gridview);
 
-        mCallButton = (Button) findViewById(R.id.call_button);
-        mCallButton.setOnClickListener(view -> callTiqavService());
+        //画像のロード
+        callTiqavService();
     }
 
 
@@ -77,19 +78,12 @@ public class MainActivity extends AppCompatActivity {
 
         apiCall.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(event -> {
-                            System.out.println(event);
-                            List<String> urlList = new ArrayList<>();
-                            for (ImageEntry entry : event) {
-                                urlList.add("http://img.tiqav.com/" + entry.id + "." + entry.ext);
-                            }
-                            mGridView.setAdapter(new HueAdapter(this, urlList));
+                .subscribe(imgs -> {
+                            System.out.println(imgs);
+                            mGridView.setAdapter(new HueAdapter(this, Arrays.asList(imgs)));
                             mGridView.invalidate();
                         }
                         , Throwable::printStackTrace
                 );
-
     }
-
-
 }

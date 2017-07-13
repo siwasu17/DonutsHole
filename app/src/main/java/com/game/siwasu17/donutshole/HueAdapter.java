@@ -9,6 +9,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.game.siwasu17.donutshole.models.ImageEntry;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -21,26 +22,25 @@ public class HueAdapter extends BaseAdapter {
     private Context mContext;
     private Picasso mPicasso;
     private LayoutInflater mLayoutInflater;
-    private List<String> mUrlList;
+    private List<ImageEntry> mImgEntryList;
 
     private static class ViewHolder {
         public ImageView hueImageView;
-        public TextView hueTextView;
     }
 
-    public HueAdapter(Context context, List<String> urlList) {
+    public HueAdapter(Context context, List<ImageEntry> imgEntryList) {
         mContext = context;
         mLayoutInflater = LayoutInflater.from(context);
         mPicasso = Picasso.with(context);
-        mUrlList = urlList;
+        mImgEntryList = imgEntryList;
     }
 
     @Override
     public int getCount() {
-        if (mUrlList == null) {
+        if (mImgEntryList == null) {
             return 0;
         }
-        return mUrlList.size();
+        return mImgEntryList.size();
     }
 
     @Override
@@ -60,15 +60,18 @@ public class HueAdapter extends BaseAdapter {
             convertView = mLayoutInflater.inflate(R.layout.grid_item_hue, null);
             holder = new ViewHolder();
             holder.hueImageView = (ImageView) convertView.findViewById(R.id.hue_imageview);
-            holder.hueTextView = (TextView) convertView.findViewById(R.id.hue_textview);
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
 
+        //サムネイル  "http://img.tiqav.com/" + entry.id + ".th.jpg"
+        //実画像  "http://img.tiqav.com/" + entry.id + "." + entry.ext
         //領域に合わせてロード
-        mPicasso.load(mUrlList.get(i)).fit().into(holder.hueImageView);
-        holder.hueTextView.setText("No. " + i);
+        mPicasso.load(String.format("http://img.tiqav.com/%s.th.jpg", mImgEntryList.get(i).id))
+                .fit()
+                .centerInside()
+                .into(holder.hueImageView);
 
         return convertView;
     }
