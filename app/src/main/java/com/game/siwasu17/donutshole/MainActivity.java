@@ -10,7 +10,9 @@ import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.game.siwasu17.donutshole.models.ImageEntry;
 import com.game.siwasu17.donutshole.services.TiqavService;
@@ -77,16 +79,19 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                /*
                 System.out.println(
                         MessageFormat.format("FirstVisPos: {0}, VisibleItemCount: {1}, total: {2}",
                                 firstVisibleItem, visibleItemCount, totalItemCount)
                 );
-
+                */
 
                 if (totalItemCount == (firstVisibleItem + visibleItemCount)) {
                     if(!loading) {
+                        int pos = absListView.getFirstVisiblePosition();
                         //ロード中でなければロード
-                        System.out.println("Load!");
+                        System.out.println("Load! " + pos);
+
                         loading = true;
                         callTiqavService();
                     }
@@ -96,12 +101,14 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        //画像のロード
+        //初期画像のロード
         callTiqavService();
     }
 
 
     private void callTiqavService() {
+        Toast.makeText(this, "Loading...", Toast.LENGTH_SHORT).show();
+
         //Interfaceから実装を取得
         TiqavService tiqavService = ServiceFactory.createTiqavService();
 
@@ -111,8 +118,13 @@ public class MainActivity extends AppCompatActivity {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(imgs -> {
                             System.out.println(imgs);
+                            //リストに画像要素を追加していく
+                            // adapterで関連付けられてからはここに要素追加するだけでOK
                             mImageEntryList.addAll(Arrays.asList(imgs));
-                            mGridView.setAdapter(new HueAdapter(this, mImageEntryList));
+                            if(null == mGridView.getAdapter()){
+                                //初回のみアダプタを生成
+                                mGridView.setAdapter(new HueAdapter(this, mImageEntryList));
+                            }
                             mGridView.invalidate();
                         }
                         , Throwable::printStackTrace

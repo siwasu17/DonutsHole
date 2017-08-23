@@ -72,7 +72,6 @@ public class HueAdapter extends BaseAdapter {
                 .fit()
                 .centerInside()
                 .into(holder.hueImageView);
-
         return convertView;
     }
 }
