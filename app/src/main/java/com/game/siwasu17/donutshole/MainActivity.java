@@ -6,16 +6,21 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
+import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.game.siwasu17.donutshole.models.ImageEntry;
 import com.game.siwasu17.donutshole.services.TiqavService;
 import com.squareup.picasso.Picasso;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -29,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Button mCallButton;
     private GridView mGridView;
+    private List<ImageEntry> mImageEntryList = new ArrayList<>();
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -63,13 +69,46 @@ public class MainActivity extends AppCompatActivity {
 
         // グリッドビュー
         mGridView = (GridView) findViewById(R.id.gridview);
+        mGridView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            private boolean loading = true;
 
-        mCallButton = (Button) findViewById(R.id.call_button);
-        mCallButton.setOnClickListener(view -> callTiqavService());
+            @Override
+            public void onScrollStateChanged(AbsListView absListView, int i) {
+
+            }
+
+            @Override
+            public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                /*
+                System.out.println(
+                        MessageFormat.format("FirstVisPos: {0}, VisibleItemCount: {1}, total: {2}",
+                                firstVisibleItem, visibleItemCount, totalItemCount)
+                );
+                */
+
+                if (totalItemCount == (firstVisibleItem + visibleItemCount)) {
+                    if(!loading) {
+                        int pos = absListView.getFirstVisiblePosition();
+                        //ロード中でなければロード
+                        System.out.println("Load! " + pos);
+
+                        loading = true;
+                        callTiqavService();
+                    }
+                }else{
+                    loading = false;
+                }
+
+            }
+        });
+        //初期画像のロード
+        callTiqavService();
     }
 
 
     private void callTiqavService() {
+        Toast.makeText(this, "Loading...", Toast.LENGTH_SHORT).show();
+
         //Interfaceから実装を取得
         TiqavService tiqavService = ServiceFactory.createTiqavService();
 
@@ -77,19 +116,18 @@ public class MainActivity extends AppCompatActivity {
 
         apiCall.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(event -> {
-                            System.out.println(event);
-                            List<String> urlList = new ArrayList<>();
-                            for (ImageEntry entry : event) {
-                                urlList.add("http://img.tiqav.com/" + entry.id + "." + entry.ext);
+                .subscribe(imgs -> {
+                            System.out.println(imgs);
+                            //リストに画像要素を追加していく
+                            // adapterで関連付けられてからはここに要素追加するだけでOK
+                            mImageEntryList.addAll(Arrays.asList(imgs));
+                            if(null == mGridView.getAdapter()){
+                                //初回のみアダプタを生成
+                                mGridView.setAdapter(new HueAdapter(this, mImageEntryList));
                             }
-                            mGridView.setAdapter(new HueAdapter(this, urlList));
                             mGridView.invalidate();
                         }
                         , Throwable::printStackTrace
                 );
-
     }
-
-
 }
