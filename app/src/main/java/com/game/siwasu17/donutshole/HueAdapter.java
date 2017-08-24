@@ -14,9 +14,6 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-/**
- * Created by yasu on 2017/07/12.
- */
 
 public class HueAdapter extends BaseAdapter {
     private Context mContext;
