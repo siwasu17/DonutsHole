@@ -1,6 +1,8 @@
 package com.game.siwasu17.donutshole.models;
 
-public class ImageEntry {
+import java.io.Serializable;
+
+public class ImageEntry implements Serializable{
     public String id;
     public String ext;
     public int height;
