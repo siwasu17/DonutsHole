@@ -21,8 +21,6 @@ public class ImageDetailActivity extends AppCompatActivity {
         String imageUrl = "http://img.tiqav.com/" + entry.id + "." + entry.ext;
         ImageView imageView = (ImageView) findViewById(R.id.detail_imageview);
 
-        //Picassoを使いまわせるとキャッシュ使えそうだが。。。
-
         Picasso.with(this)
                 .load(imageUrl)
                 .fit()
