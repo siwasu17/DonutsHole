@@ -110,19 +110,16 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                ImageEntry imageEntry = mImageEntryList.get(position);
-                System.out.println(
-                        MessageFormat.format("pos: {0}, id: {1}, Image: {2}",
-                                position, id, imageEntry.id)
-                );
+        mGridView.setOnItemClickListener((parent, view, position, id) -> {
+            ImageEntry imageEntry = mImageEntryList.get(position);
+            System.out.println(
+                    MessageFormat.format("pos: {0}, id: {1}, Image: {2}",
+                            position, id, imageEntry.id)
+            );
 
-                Intent intent = new Intent(MainActivity.this, ImageDetailActivity.class);
-                intent.putExtra(IMAGE_ENTRY_KEY, imageEntry);
-                startActivity(intent);
-            }
+            Intent intent = new Intent(MainActivity.this, ImageDetailActivity.class);
+            intent.putExtra(IMAGE_ENTRY_KEY, imageEntry);
+            startActivity(intent);
         });
 
         //画像配列とそのアダプタを生成
