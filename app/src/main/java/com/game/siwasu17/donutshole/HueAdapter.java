@@ -62,10 +62,8 @@ public class HueAdapter extends BaseAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        //サムネイル  "http://img.tiqav.com/" + entry.id + ".th.jpg"
-        //実画像  "http://img.tiqav.com/" + entry.id + "." + entry.ext
         //領域に合わせてロード
-        mPicasso.load(String.format("http://img.tiqav.com/%s.th.jpg", mImgEntryList.get(i).id))
+        mPicasso.load(mImgEntryList.get(i).getThumbUrl())
                 .fit()
                 .centerInside()
                 .into(holder.hueImageView);

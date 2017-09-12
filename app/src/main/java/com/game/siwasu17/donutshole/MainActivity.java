@@ -2,9 +2,13 @@ package com.game.siwasu17.donutshole;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,7 +24,12 @@ import android.widget.Toast;
 import com.game.siwasu17.donutshole.models.ImageEntry;
 import com.game.siwasu17.donutshole.services.TiqavService;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
     private HueAdapter mHueAdapter;
     private List<ImageEntry> mImageEntryList = new ArrayList<>();
 
-    public static final String IMAGE_ENTRY_KEY = "IMAGE_ENTRY";
+    public static final String IMAGE_CACHE_KEY = "IMAGE_CACHE_KEY";
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -110,16 +119,56 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+        //詳細画面への遷移
         mGridView.setOnItemClickListener((parent, view, position, id) -> {
             ImageEntry imageEntry = mImageEntryList.get(position);
             System.out.println(
-                    MessageFormat.format("pos: {0}, id: {1}, Image: {2}",
+                    MessageFormat.format("pos: {0}, id: {1}, ImageID: {2}",
                             position, id, imageEntry.id)
             );
 
-            Intent intent = new Intent(MainActivity.this, ImageDetailActivity.class);
-            intent.putExtra(IMAGE_ENTRY_KEY, imageEntry);
-            startActivity(intent);
+            //Bitmap取得のためのcallback
+            Target mTarget = new Target() {
+                @Override
+                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                    System.out.println("Bitmap get complete");
+
+                    File cachePath = new File(getApplicationContext().getCacheDir(), "images");
+                    cachePath.mkdirs();
+                    File filePath = new File(cachePath,imageEntry.id + ".jpg");
+
+                    try(FileOutputStream stream = new FileOutputStream(filePath)){
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                    }catch(IOException e){
+                        e.printStackTrace();
+                    }
+
+                    System.out.println("Bitmap save: " + filePath.getAbsolutePath());
+
+                    Intent intent = new Intent(MainActivity.this, ImageDetailActivity.class);
+                    //キャッシュファイルのパスを送信
+                    intent.putExtra(IMAGE_CACHE_KEY, filePath.toString());
+                    startActivity(intent);
+
+                }
+
+                @Override
+                public void onBitmapFailed(Drawable errorDrawable) {
+                    System.out.println("Bitmap load failed");
+                }
+
+                @Override
+                public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                }
+            };
+
+            //実画像を取得して、画像詳細画面へ遷移
+            //callbackが重なるためこんな作りになってる
+            Picasso.with(this)
+                    .load(imageEntry.getRealUrl())
+                    .into(mTarget);
+
         });
 
         //画像配列とそのアダプタを生成
