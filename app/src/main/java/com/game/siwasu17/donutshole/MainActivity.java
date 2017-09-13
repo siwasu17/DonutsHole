@@ -1,12 +1,19 @@
 package com.game.siwasu17.donutshole;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -17,7 +24,12 @@ import android.widget.Toast;
 import com.game.siwasu17.donutshole.models.ImageEntry;
 import com.game.siwasu17.donutshole.services.TiqavService;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,7 +46,10 @@ public class MainActivity extends AppCompatActivity {
 
     private Button mCallButton;
     private GridView mGridView;
+    private HueAdapter mHueAdapter;
     private List<ImageEntry> mImageEntryList = new ArrayList<>();
+
+    public static final String IMAGE_CACHE_KEY = "IMAGE_CACHE_KEY";
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -64,11 +79,12 @@ public class MainActivity extends AppCompatActivity {
 
         //mTextMessage = (TextView) findViewById(R.id.message);
         //mImageView = (ImageView) findViewById(R.id.image_view);
-        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        //BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        //navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         // グリッドビュー
         mGridView = (GridView) findViewById(R.id.gridview);
+
         mGridView.setOnScrollListener(new AbsListView.OnScrollListener() {
             private boolean loading = true;
 
@@ -87,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
                 */
 
                 if (totalItemCount == (firstVisibleItem + visibleItemCount)) {
-                    if(!loading) {
+                    if (!loading) {
                         int pos = absListView.getFirstVisiblePosition();
                         //ロード中でなければロード
                         System.out.println("Load! " + pos);
@@ -95,12 +111,68 @@ public class MainActivity extends AppCompatActivity {
                         loading = true;
                         callTiqavService();
                     }
-                }else{
+                } else {
                     loading = false;
                 }
 
             }
         });
+
+
+        //詳細画面への遷移
+        mGridView.setOnItemClickListener((parent, view, position, id) -> {
+            ImageEntry imageEntry = mImageEntryList.get(position);
+            System.out.println(
+                    MessageFormat.format("pos: {0}, id: {1}, ImageID: {2}",
+                            position, id, imageEntry.id)
+            );
+
+            //Bitmap取得のためのcallback
+            Target mTarget = new Target() {
+                @Override
+                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                    System.out.println("Bitmap get complete");
+
+                    File cachePath = new File(getApplicationContext().getCacheDir(), "images");
+                    cachePath.mkdirs();
+                    File filePath = new File(cachePath,imageEntry.id + ".jpg");
+
+                    try(FileOutputStream stream = new FileOutputStream(filePath)){
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                    }catch(IOException e){
+                        e.printStackTrace();
+                    }
+
+                    System.out.println("Bitmap save: " + filePath.getAbsolutePath());
+
+                    Intent intent = new Intent(MainActivity.this, ImageDetailActivity.class);
+                    //キャッシュファイルのパスを送信
+                    intent.putExtra(IMAGE_CACHE_KEY, filePath.toString());
+                    startActivity(intent);
+
+                }
+
+                @Override
+                public void onBitmapFailed(Drawable errorDrawable) {
+                    System.out.println("Bitmap load failed");
+                }
+
+                @Override
+                public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                }
+            };
+
+            //実画像を取得して、画像詳細画面へ遷移
+            //callbackが重なるためこんな作りになってる
+            Picasso.with(this)
+                    .load(imageEntry.getRealUrl())
+                    .into(mTarget);
+
+        });
+
+        //画像配列とそのアダプタを生成
+        mHueAdapter = new HueAdapter(this, mImageEntryList);
         //初期画像のロード
         callTiqavService();
     }
@@ -119,12 +191,13 @@ public class MainActivity extends AppCompatActivity {
                 .subscribe(imgs -> {
                             System.out.println(imgs);
                             //リストに画像要素を追加していく
-                            // adapterで関連付けられてからはここに要素追加するだけでOK
+                            // adapterで関連付けられているので要素追加するだけでOK
                             mImageEntryList.addAll(Arrays.asList(imgs));
-                            if(null == mGridView.getAdapter()){
-                                //初回のみアダプタを生成
-                                mGridView.setAdapter(new HueAdapter(this, mImageEntryList));
+                            if (null == mGridView.getAdapter()) {
+                                //初回だけGridViewにアダプタを関連付け
+                                mGridView.setAdapter(mHueAdapter);
                             }
+
                             mGridView.invalidate();
                         }
                         , Throwable::printStackTrace
