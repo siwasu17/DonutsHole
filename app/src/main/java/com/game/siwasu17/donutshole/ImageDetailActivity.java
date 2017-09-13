@@ -62,11 +62,9 @@ public class ImageDetailActivity extends AppCompatActivity {
 
             // シェアするもの
             builder.setStream(contentURI);
-            //builder.setText(imageUrl);
 
             // シェアするタイプ
             builder.setType("image/jpeg");
-            //builder.setType("text/plain");
 
             // Shareアプリ一覧のDialogの表示
             builder.startChooser();

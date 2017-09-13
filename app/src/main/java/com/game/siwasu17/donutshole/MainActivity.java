@@ -3,6 +3,7 @@ package com.game.siwasu17.donutshole;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,6 +11,8 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
@@ -41,30 +44,24 @@ import io.reactivex.schedulers.Schedulers;
 
 
 public class MainActivity extends AppCompatActivity {
-    private TextView mTextMessage;
-    private ImageView mImageView;
-
-    private Button mCallButton;
     private GridView mGridView;
     private HueAdapter mHueAdapter;
     private List<ImageEntry> mImageEntryList = new ArrayList<>();
+
+    SearchView mSearchView;
 
     public static final String IMAGE_CACHE_KEY = "IMAGE_CACHE_KEY";
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
-
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_home:
-                    mTextMessage.setText(R.string.title_home);
                     return true;
                 case R.id.navigation_dashboard:
-                    mTextMessage.setText(R.string.title_dashboard);
                     return true;
                 case R.id.navigation_notifications:
-                    mTextMessage.setText(R.string.title_notifications);
                     return true;
             }
             return false;
@@ -76,11 +73,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        //mTextMessage = (TextView) findViewById(R.id.message);
-        //mImageView = (ImageView) findViewById(R.id.image_view);
-        //BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
-        //navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         // グリッドビュー
         mGridView = (GridView) findViewById(R.id.gridview);
@@ -95,13 +87,6 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                /*
-                System.out.println(
-                        MessageFormat.format("FirstVisPos: {0}, VisibleItemCount: {1}, total: {2}",
-                                firstVisibleItem, visibleItemCount, totalItemCount)
-                );
-                */
-
                 if (totalItemCount == (firstVisibleItem + visibleItemCount)) {
                     if (!loading) {
                         int pos = absListView.getFirstVisiblePosition();
@@ -178,6 +163,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * TiqavのAPIを叩いてGridViewに画像を反映させる
+     */
     private void callTiqavService() {
         Toast.makeText(this, "Loading...", Toast.LENGTH_SHORT).show();
 
@@ -202,5 +190,24 @@ public class MainActivity extends AppCompatActivity {
                         }
                         , Throwable::printStackTrace
                 );
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        // 検索バーを追加(必須)
+        getMenuInflater().inflate(R.menu.main, menu);
+
+        // 文字色、サイズの変更とプレースホルダーセット(任意)
+        /*
+        SearchView.SearchAutoComplete searchAutoComplete = (SearchView.SearchAutoComplete)
+                mSearchView.findViewById(android.support.v7.appcompat.R.id.search_src_text);
+        searchAutoComplete.setHintTextColor(Color.rgb(0xff, 0xff, 0xff));
+        searchAutoComplete.setTextSize(25);
+        searchAutoComplete.setHint("検索キーワード");
+        */
+
+        return true;
     }
 }
