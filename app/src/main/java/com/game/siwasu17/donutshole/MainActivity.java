@@ -6,10 +6,15 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.content.FileProvider;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.view.Menu;
@@ -37,6 +42,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -49,6 +55,9 @@ public class MainActivity extends AppCompatActivity {
     private List<ImageEntry> mImageEntryList = new ArrayList<>();
 
     SearchView mSearchView;
+    //検索ワード
+    //String searchWord = null;
+    String searchWord;
 
     public static final String IMAGE_CACHE_KEY = "IMAGE_CACHE_KEY";
 
@@ -120,11 +129,11 @@ public class MainActivity extends AppCompatActivity {
 
                     File cachePath = new File(getApplicationContext().getCacheDir(), "images");
                     cachePath.mkdirs();
-                    File filePath = new File(cachePath,imageEntry.id + ".jpg");
+                    File filePath = new File(cachePath, imageEntry.id + ".jpg");
 
-                    try(FileOutputStream stream = new FileOutputStream(filePath)){
+                    try (FileOutputStream stream = new FileOutputStream(filePath)) {
                         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-                    }catch(IOException e){
+                    } catch (IOException e) {
                         e.printStackTrace();
                     }
 
@@ -171,8 +180,14 @@ public class MainActivity extends AppCompatActivity {
 
         //Interfaceから実装を取得
         TiqavService tiqavService = ServiceFactory.createTiqavService();
-
-        Observable<ImageEntry[]> apiCall = tiqavService.searchRandom();
+        Observable<ImageEntry[]> apiCall;
+        if(null != searchWord && !searchWord.isEmpty()) {
+            mImageEntryList.clear();
+            //FIXME: 無限スクロールしていくと困る
+            apiCall = tiqavService.search(searchWord);
+        }else{
+            apiCall = tiqavService.searchRandom();
+        }
 
         apiCall.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -199,6 +214,24 @@ public class MainActivity extends AppCompatActivity {
         // 検索バーを追加(必須)
         getMenuInflater().inflate(R.menu.main, menu);
 
+        MenuItem menuItem = menu.findItem(R.id.search_menu_search_view);
+        mSearchView = (SearchView) MenuItemCompat.getActionView(menuItem);
+
+        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                setSearchWord(query);
+                callTiqavService();
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+
         // 文字色、サイズの変更とプレースホルダーセット(任意)
         /*
         SearchView.SearchAutoComplete searchAutoComplete = (SearchView.SearchAutoComplete)
@@ -209,5 +242,23 @@ public class MainActivity extends AppCompatActivity {
         */
 
         return true;
+    }
+
+    private boolean setSearchWord(String searchWord) {
+        ActionBar actionBar = getSupportActionBar();
+
+        actionBar.setTitle(searchWord);
+        actionBar.setDisplayShowTitleEnabled(true);
+        if (searchWord != null && !searchWord.equals("")) {
+            // searchWordがあることを確認
+            this.searchWord = searchWord;
+        }
+        // 虫眼鏡アイコンを隠す
+        mSearchView.setIconified(false);
+        // SearchViewを隠す
+        mSearchView.onActionViewCollapsed();
+        // Focusを外す
+        mSearchView.clearFocus();
+        return false;
     }
 }
