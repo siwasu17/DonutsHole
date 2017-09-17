@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_home:
+                    //setFragment here
                     return true;
                 case R.id.navigation_dashboard:
                     return true;
@@ -176,6 +177,7 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
         }else{
+            //TODO: searchNewestして、page番号をつけたらページネーションできるかも
             apiCall = tiqavService.searchRandom();
         }
 
