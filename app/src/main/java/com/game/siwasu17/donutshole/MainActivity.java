@@ -1,30 +1,25 @@
 package com.game.siwasu17.donutshole;
 
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
+import android.app.Fragment;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.AbsListView;
 import android.widget.GridView;
 import android.widget.Toast;
 
+import com.game.siwasu17.donutshole.fragments.HomeFragment;
+import com.game.siwasu17.donutshole.fragments.NaviFragment;
 import com.game.siwasu17.donutshole.models.ImageEntry;
 import com.game.siwasu17.donutshole.services.TiqavService;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -34,7 +29,10 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity
+        extends AppCompatActivity
+        implements
+        HomeFragment.OnFragmentInteractionListener{
     private GridView mGridView;
     private HueAdapter mHueAdapter;
     private List<ImageEntry> mImageEntryList = new ArrayList<>();
@@ -54,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
             switch (item.getItemId()) {
                 case R.id.navigation_home:
                     //setFragment here
+                    setFragment(new HomeFragment());
                     return true;
                 case R.id.navigation_dashboard:
                     return true;
@@ -65,12 +64,20 @@ public class MainActivity extends AppCompatActivity {
 
     };
 
+    private void setFragment(Fragment fragment) {
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        transaction.add(R.id.main_container, fragment);
+        transaction.commit();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setFragment(new HomeFragment());
 
         // グリッドビュー
+        /*
         mGridView = (GridView) findViewById(R.id.gridview);
 
         mGridView.setOnScrollListener(new AbsListView.OnScrollListener() {
@@ -156,6 +163,8 @@ public class MainActivity extends AppCompatActivity {
         mHueAdapter = new HueAdapter(this, mImageEntryList);
         //初期画像のロード
         callTiqavService();
+
+        */
     }
 
 
@@ -166,17 +175,17 @@ public class MainActivity extends AppCompatActivity {
         //Interfaceから実装を取得
         TiqavService tiqavService = ServiceFactory.createTiqavService();
         Observable<ImageEntry[]> apiCall;
-        if(null != searchWord && !searchWord.isEmpty()) {
-            if(searchWordChanged) {
+        if (null != searchWord && !searchWord.isEmpty()) {
+            if (searchWordChanged) {
                 mImageEntryList.clear();
                 mGridView.setAdapter(null);
                 apiCall = tiqavService.search(searchWord);
                 searchWordChanged = false;
-            }else{
+            } else {
                 //do nothing
                 return;
             }
-        }else{
+        } else {
             //TODO: searchNewestして、page番号をつけたらページネーションできるかも
             apiCall = tiqavService.searchRandom();
         }
@@ -256,4 +265,11 @@ public class MainActivity extends AppCompatActivity {
         mSearchView.clearFocus();
         return false;
     }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
+    }
+
+
 }
