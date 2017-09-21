@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
+import com.game.siwasu17.donutshole.fragments.HomeFragment;
 import com.game.siwasu17.donutshole.models.ImageEntry;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
@@ -31,7 +32,7 @@ public class ImageDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_img_detail);
 
-        File imgFilePath = new File(getIntent().getStringExtra(MainActivity.IMAGE_CACHE_KEY));
+        File imgFilePath = new File(getIntent().getStringExtra(HomeFragment.IMAGE_CACHE_KEY));
 
         //シェア用にContentURIに変換
         Uri contentURI = FileProvider.getUriForFile(

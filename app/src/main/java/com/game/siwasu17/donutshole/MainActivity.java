@@ -1,6 +1,9 @@
 package com.game.siwasu17.donutshole;
 
 import android.app.Fragment;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -12,14 +15,20 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AbsListView;
 import android.widget.GridView;
 import android.widget.Toast;
 
 import com.game.siwasu17.donutshole.fragments.HomeFragment;
-import com.game.siwasu17.donutshole.fragments.NaviFragment;
 import com.game.siwasu17.donutshole.models.ImageEntry;
 import com.game.siwasu17.donutshole.services.TiqavService;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -33,17 +42,7 @@ public class MainActivity
         extends AppCompatActivity
         implements
         HomeFragment.OnFragmentInteractionListener{
-    private GridView mGridView;
-    private HueAdapter mHueAdapter;
-    private List<ImageEntry> mImageEntryList = new ArrayList<>();
 
-    SearchView mSearchView;
-
-    boolean searchWordChanged = false;
-    //検索ワード
-    String searchWord;
-
-    public static final String IMAGE_CACHE_KEY = "IMAGE_CACHE_KEY";
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -75,139 +74,6 @@ public class MainActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setFragment(new HomeFragment());
-
-        // グリッドビュー
-        /*
-        mGridView = (GridView) findViewById(R.id.gridview);
-
-        mGridView.setOnScrollListener(new AbsListView.OnScrollListener() {
-            private boolean loading = true;
-
-            @Override
-            public void onScrollStateChanged(AbsListView absListView, int i) {
-
-            }
-
-            @Override
-            public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if (totalItemCount == (firstVisibleItem + visibleItemCount)) {
-                    if (!loading) {
-                        int pos = absListView.getFirstVisiblePosition();
-                        //ロード中でなければロード
-                        System.out.println("Load! " + pos);
-
-                        loading = true;
-                        callTiqavService();
-                    }
-                } else {
-                    loading = false;
-                }
-
-            }
-        });
-
-
-        //詳細画面への遷移
-        mGridView.setOnItemClickListener((parent, view, position, id) -> {
-            ImageEntry imageEntry = mImageEntryList.get(position);
-            System.out.println(
-                    MessageFormat.format("pos: {0}, id: {1}, ImageID: {2}",
-                            position, id, imageEntry.id)
-            );
-
-            //Bitmap取得のためのcallback
-            Target mTarget = new Target() {
-                @Override
-                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                    System.out.println("Bitmap get complete");
-
-                    File cachePath = new File(getApplicationContext().getCacheDir(), "images");
-                    cachePath.mkdirs();
-                    File filePath = new File(cachePath, imageEntry.id + ".jpg");
-
-                    try (FileOutputStream stream = new FileOutputStream(filePath)) {
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-                    System.out.println("Bitmap save: " + filePath.getAbsolutePath());
-
-                    Intent intent = new Intent(MainActivity.this, ImageDetailActivity.class);
-                    //キャッシュファイルのパスを送信
-                    intent.putExtra(IMAGE_CACHE_KEY, filePath.toString());
-                    startActivity(intent);
-
-                }
-
-                @Override
-                public void onBitmapFailed(Drawable errorDrawable) {
-                    System.out.println("Bitmap load failed");
-                }
-
-                @Override
-                public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-                }
-            };
-
-            //実画像を取得して、画像詳細画面へ遷移
-            //callbackが重なるためこんな作りになってる
-            Picasso.with(this)
-                    .load(imageEntry.getRealUrl())
-                    .into(mTarget);
-
-        });
-
-        //画像配列とそのアダプタを生成
-        mHueAdapter = new HueAdapter(this, mImageEntryList);
-        //初期画像のロード
-        callTiqavService();
-
-        */
-    }
-
-
-    /**
-     * TiqavのAPIを叩いてGridViewに画像を反映させる
-     */
-    private void callTiqavService() {
-        //Interfaceから実装を取得
-        TiqavService tiqavService = ServiceFactory.createTiqavService();
-        Observable<ImageEntry[]> apiCall;
-        if (null != searchWord && !searchWord.isEmpty()) {
-            if (searchWordChanged) {
-                mImageEntryList.clear();
-                mGridView.setAdapter(null);
-                apiCall = tiqavService.search(searchWord);
-                searchWordChanged = false;
-            } else {
-                //do nothing
-                return;
-            }
-        } else {
-            //TODO: searchNewestして、page番号をつけたらページネーションできるかも
-            apiCall = tiqavService.searchRandom();
-        }
-
-        Toast.makeText(this, "Loading...", Toast.LENGTH_SHORT).show();
-
-        apiCall.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(imgs -> {
-                            System.out.println(imgs);
-                            //リストに画像要素を追加していく
-                            // adapterで関連付けられているので要素追加するだけでOK
-                            mImageEntryList.addAll(Arrays.asList(imgs));
-                            if (null == mGridView.getAdapter()) {
-                                //初回だけGridViewにアダプタを関連付け
-                                mGridView.setAdapter(mHueAdapter);
-                            }
-
-                            mGridView.invalidate();
-                        }
-                        , Throwable::printStackTrace
-                );
     }
 
 
@@ -215,6 +81,8 @@ public class MainActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         // 検索バーを追加(必須)
+        /*
+        //TODO: あとで直す
         getMenuInflater().inflate(R.menu.main, menu);
 
         MenuItem menuItem = menu.findItem(R.id.search_menu_search_view);
@@ -235,39 +103,16 @@ public class MainActivity
             }
         });
 
-        // 文字色、サイズの変更とプレースホルダーセット(任意)
-        /*
-        SearchView.SearchAutoComplete searchAutoComplete = (SearchView.SearchAutoComplete)
-                mSearchView.findViewById(android.support.v7.appcompat.R.id.search_src_text);
-        searchAutoComplete.setHintTextColor(Color.rgb(0xff, 0xff, 0xff));
-        searchAutoComplete.setTextSize(25);
-        searchAutoComplete.setHint("検索キーワード");
         */
 
         return true;
     }
 
-    private boolean setSearchWord(String searchWord) {
-        ActionBar actionBar = getSupportActionBar();
 
-        actionBar.setTitle(searchWord);
-        actionBar.setDisplayShowTitleEnabled(true);
-        if (searchWord != null && !searchWord.equals("")) {
-            // searchWordがあることを確認
-            this.searchWord = searchWord;
-            this.searchWordChanged = true;
-        }
-        // 虫眼鏡アイコンを隠す
-        mSearchView.setIconified(false);
-        // SearchViewを隠す
-        mSearchView.onActionViewCollapsed();
-        // Focusを外す
-        mSearchView.clearFocus();
-        return false;
-    }
 
     @Override
     public void onFragmentInteraction(Uri uri) {
+
 
     }
 

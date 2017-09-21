@@ -9,24 +9,6 @@
     android:orientation="vertical"
     tools:context="com.game.siwasu17.donutshole.MainActivity">
 
-
-
-<!--
-    <GridView
-        android:id="@+id/gridview"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:columnWidth="140dp"
-        android:gravity="center"
-        android:horizontalSpacing="2dp"
-        android:minHeight="100dp"
-        android:numColumns="auto_fit"
-        android:stretchMode="columnWidth"
-        android:verticalSpacing="2dp"
-        android:layout_weight="1"
-        />
-
--->
     <LinearLayout
         android:id="@+id/main_container"
         android:layout_width="wrap_content"
