@@ -11,6 +11,7 @@
         android:layout_marginBottom="4dp"
         android:background="#000000"/>
     <ImageView
+        android:id="@+id/hue_fav_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@android:drawable/btn_star_big_off"

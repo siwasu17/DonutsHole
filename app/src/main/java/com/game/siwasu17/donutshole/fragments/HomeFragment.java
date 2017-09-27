@@ -24,7 +24,12 @@ import com.game.siwasu17.donutshole.MainActivity;
 import com.game.siwasu17.donutshole.R;
 import com.game.siwasu17.donutshole.ServiceFactory;
 import com.game.siwasu17.donutshole.models.ImageEntry;
+import com.game.siwasu17.donutshole.models.ImageEntry_Selector;
+import com.game.siwasu17.donutshole.models.OrmaDatabase;
 import com.game.siwasu17.donutshole.services.TiqavService;
+import com.github.gfx.android.orma.AccessThreadConstraint;
+import com.github.gfx.android.orma.BuildConfig;
+import com.github.gfx.android.orma.Inserter;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -98,7 +103,7 @@ public class HomeFragment extends Fragment {
 
 
     private boolean setSearchWord(String searchWord) {
-        ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
 
         actionBar.setTitle(searchWord);
         actionBar.setDisplayShowTitleEnabled(true);
@@ -294,6 +299,20 @@ public class HomeFragment extends Fragment {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(imgs -> {
                             System.out.println(imgs);
+                            //ちょい制約を緩める
+                            OrmaDatabase orma = OrmaDatabase
+                                    .builder(getActivity())
+                                    .writeOnMainThread(BuildConfig.DEBUG ? AccessThreadConstraint.WARNING : AccessThreadConstraint.NONE)
+                                    .build();
+                            Inserter<ImageEntry> inserter = orma.prepareInsertIntoImageEntry();
+                            inserter.executeAll(Arrays.asList(imgs));
+
+                            ImageEntry_Selector selector = orma.selectFromImageEntry()
+                                    .orderByIdAsc();
+                            ImageEntry saved = selector.get(0);
+
+                            System.out.println(saved.getRealUrl());
+
                             //リストに画像要素を追加していく
                             // adapterで関連付けられているので要素追加するだけでOK
                             mImageEntryList.addAll(Arrays.asList(imgs));

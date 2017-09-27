@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.game.siwasu17.donutshole.models.ImageEntry;
+import com.game.siwasu17.donutshole.models.OrmaDatabase;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -23,6 +24,7 @@ public class HueAdapter extends BaseAdapter {
 
     private static class ViewHolder {
         public ImageView hueImageView;
+        public ImageView hueFavIcon;
     }
 
     public HueAdapter(Context context, List<ImageEntry> imgEntryList) {
@@ -57,6 +59,7 @@ public class HueAdapter extends BaseAdapter {
             convertView = mLayoutInflater.inflate(R.layout.grid_item_hue, null);
             holder = new ViewHolder();
             holder.hueImageView = (ImageView) convertView.findViewById(R.id.hue_imageview);
+            holder.hueFavIcon = (ImageView) convertView.findViewById(R.id.hue_fav_icon);
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
