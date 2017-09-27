@@ -177,7 +177,6 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(View currentView, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(currentView, savedInstanceState);
 
-
         mGridView = (GridView) currentView.findViewById(R.id.gridview);
 
         mGridView.setOnScrollListener(new AbsListView.OnScrollListener() {
