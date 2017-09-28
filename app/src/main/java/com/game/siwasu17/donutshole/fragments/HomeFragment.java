@@ -300,6 +300,7 @@ public class HomeFragment extends Fragment {
                 .subscribe(imgs -> {
                             System.out.println(imgs);
                             //ちょい制約を緩める
+                    /*
                             OrmaDatabase orma = OrmaDatabase
                                     .builder(getActivity())
                                     .writeOnMainThread(BuildConfig.DEBUG ? AccessThreadConstraint.WARNING : AccessThreadConstraint.NONE)
@@ -312,6 +313,7 @@ public class HomeFragment extends Fragment {
                             ImageEntry saved = selector.get(0);
 
                             System.out.println(saved.getRealUrl());
+                            */
 
                             //リストに画像要素を追加していく
                             // adapterで関連付けられているので要素追加するだけでOK
