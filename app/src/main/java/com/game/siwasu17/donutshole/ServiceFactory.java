@@ -18,19 +18,16 @@ public class ServiceFactory {
 
         //okhttpのclient作成
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
-        httpClient.addInterceptor(new Interceptor() {
-            @Override
-            public Response intercept(Interceptor.Chain chain) throws IOException {
-                Request original = chain.request();
+        httpClient.addInterceptor(chain -> {
+            Request original = chain.request();
 
-                //header設定
-                Request request = original.newBuilder()
-                        .header("Accept", "application/json")
-                        .method(original.method(), original.body())
-                        .build();
+            //header設定
+            Request request = original.newBuilder()
+                    .header("Accept", "application/json")
+                    .method(original.method(), original.body())
+                    .build();
 
-                return chain.proceed(request);
-            }
+            return chain.proceed(request);
         });
 
         //ログ出力設定
