@@ -20,16 +20,20 @@ import android.widget.Toast;
 
 import com.game.siwasu17.donutshole.HueAdapter;
 import com.game.siwasu17.donutshole.ImageDetailActivity;
+import com.game.siwasu17.donutshole.ImageRepository;
 import com.game.siwasu17.donutshole.MainActivity;
 import com.game.siwasu17.donutshole.R;
 import com.game.siwasu17.donutshole.ServiceFactory;
 import com.game.siwasu17.donutshole.models.ImageEntry;
+
+/*
 import com.game.siwasu17.donutshole.models.ImageEntry_Selector;
 import com.game.siwasu17.donutshole.models.OrmaDatabase;
-import com.game.siwasu17.donutshole.services.TiqavService;
 import com.github.gfx.android.orma.AccessThreadConstraint;
 import com.github.gfx.android.orma.BuildConfig;
 import com.github.gfx.android.orma.Inserter;
+*/
+import com.game.siwasu17.donutshole.services.TiqavService;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -295,10 +299,22 @@ public class HomeFragment extends Fragment {
 
         Toast.makeText(getContext(), "Loading...", Toast.LENGTH_SHORT).show();
 
-        apiCall.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(imgs -> {
-                            System.out.println(imgs);
+        ImageRepository imageRepository = new ImageRepository(getActivity());
+        imageRepository.subscribeRandomImages(
+                imgs -> {
+                    System.out.println(imgs);
+
+                    //リストに画像要素を追加していく
+                    // adapterで関連付けられているので要素追加するだけでOK
+                    mImageEntryList.addAll(Arrays.asList(imgs));
+                    if (null == mGridView.getAdapter()) {
+                        //初回だけGridViewにアダプタを関連付け
+                        mGridView.setAdapter(mHueAdapter);
+                    }
+
+                    mGridView.invalidate();
+                });
+
                             //ちょい制約を緩める
                     /*
                             OrmaDatabase orma = OrmaDatabase
@@ -313,7 +329,7 @@ public class HomeFragment extends Fragment {
                             ImageEntry saved = selector.get(0);
 
                             System.out.println(saved.getRealUrl());
-                            */
+
 
                             //リストに画像要素を追加していく
                             // adapterで関連付けられているので要素追加するだけでOK
@@ -327,5 +343,6 @@ public class HomeFragment extends Fragment {
                         }
                         , Throwable::printStackTrace
                 );
+                */
     }
 }

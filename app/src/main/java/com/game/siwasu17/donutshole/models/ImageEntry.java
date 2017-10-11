@@ -5,6 +5,8 @@ import com.github.gfx.android.orma.annotation.PrimaryKey;
 import com.github.gfx.android.orma.annotation.Setter;
 import com.github.gfx.android.orma.annotation.Table;
 
+import java.sql.Timestamp;
+
 @Table
 public class ImageEntry{
     @PrimaryKey(auto=false)
@@ -19,13 +21,17 @@ public class ImageEntry{
     @Column
     public String source_url;
 
+    @Column
+    public Timestamp faved_at;
+
     @Setter
-    public ImageEntry(String id, String ext, int height, int width, String source_url) {
+    public ImageEntry(String id, String ext, int height, int width, String source_url, Timestamp faved_at) {
         this.id = id;
         this.ext = ext;
         this.height = height;
         this.width = width;
         this.source_url = source_url;
+        this.faved_at = faved_at;
     }
 
     //サムネイル画像URL

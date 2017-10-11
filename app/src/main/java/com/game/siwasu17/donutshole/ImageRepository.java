@@ -1,26 +1,78 @@
 package com.game.siwasu17.donutshole;
 
+import android.content.Context;
+import android.media.Image;
+
+import com.game.siwasu17.donutshole.models.ImageEntry;
+import com.game.siwasu17.donutshole.models.ImageEntry_Selector;
+import com.game.siwasu17.donutshole.models.OrmaDatabase;
 import com.game.siwasu17.donutshole.services.TiqavService;
+import com.github.gfx.android.orma.AccessThreadConstraint;
+import com.github.gfx.android.orma.Inserter;
+
+import java.util.Arrays;
+import java.util.List;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * ImageEntryを返すリポジトリ
  */
 public class ImageRepository {
+    private TiqavService mTiqavService;
+    private OrmaDatabase mOrmaDatabase;
 
-
-
+    public ImageRepository(Context context) {
+        this.mTiqavService = ServiceFactory.createTiqavService();
+        this.mOrmaDatabase = OrmaDatabase
+                .builder(context)
+                .writeOnMainThread(BuildConfig.DEBUG ? AccessThreadConstraint.WARNING : AccessThreadConstraint.NONE)
+                .build();
+    }
 
     /**
-     * 画像リストを返す
-     *
-     *
+     * 関数型インタフェースを渡して、非同期処理完了時にどんな処理をさせるかは外側で定義する
      */
 
-    /**
-     * 表示中の画像情報群はAdapterに持たせるべき
-     * 表示内容のリセットをしたいならばAdapterを再度作る
-     * https://stackoverflow.com/questions/9647507/how-to-reset-the-listview-with-the-arrayadapter-after-fetching-data
-     *
-     */
+    public void subscribeRandomImages(Consumer<ImageEntry[]> consumer) {
+        mTiqavService.searchRandom()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(consumer,Throwable::printStackTrace);
+    }
+
+    public void subscribeSearchImages(String query, Consumer<ImageEntry[]> consumer) {
+        mTiqavService.search(query)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(consumer,Throwable::printStackTrace);
+    }
+
+    public void addFavorite(ImageEntry imageEntry){
+        Inserter<ImageEntry> inserter = mOrmaDatabase.prepareInsertIntoImageEntry();
+        inserter.execute(imageEntry);
+        //TODO: duplicate on updateっぽくしたい
+    }
+
+
+/*
+    public List<ImageEntry> getFavedImages(){
+        OrmaDatabase orma = OrmaDatabase
+                .builder(getActivity())
+                .writeOnMainThread(BuildConfig.DEBUG ? AccessThreadConstraint.WARNING : AccessThreadConstraint.NONE)
+                .build();
+        Inserter<ImageEntry> inserter = orma.prepareInsertIntoImageEntry();
+        inserter.executeAll(Arrays.asList(imgs));
+
+        ImageEntry_Selector selector = orma.selectFromImageEntry()
+                .orderByIdAsc();
+        ImageEntry saved = selector.get(0);
+
+        System.out.println(saved.getRealUrl());
+    }
+    */
 
 }

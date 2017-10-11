@@ -10,7 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.game.siwasu17.donutshole.models.ImageEntry;
-import com.game.siwasu17.donutshole.models.OrmaDatabase;
+//import com.game.siwasu17.donutshole.models.OrmaDatabase;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
