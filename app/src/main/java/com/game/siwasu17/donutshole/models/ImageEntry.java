@@ -1,5 +1,7 @@
 package com.game.siwasu17.donutshole.models;
 
+import android.support.annotation.Nullable;
+
 import com.github.gfx.android.orma.annotation.Column;
 import com.github.gfx.android.orma.annotation.PrimaryKey;
 import com.github.gfx.android.orma.annotation.Setter;
@@ -22,6 +24,7 @@ public class ImageEntry{
     public String source_url;
 
     @Column
+    @Nullable
     public Timestamp faved_at;
 
     @Setter
@@ -43,4 +46,13 @@ public class ImageEntry{
     public String getRealUrl(){
         return "http://img.tiqav.com/" + this.id + "." + this.ext;
     }
+
+    /**
+     * Orma helper methods
+     */
+    public static ImageEntry_Relation relation(OrmaDatabase orma){
+        return orma.relationOfImageEntry().orderByIdDesc();
+    }
+
+
 }

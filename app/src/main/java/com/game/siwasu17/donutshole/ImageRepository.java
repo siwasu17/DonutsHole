@@ -4,6 +4,7 @@ import android.content.Context;
 import android.media.Image;
 
 import com.game.siwasu17.donutshole.models.ImageEntry;
+import com.game.siwasu17.donutshole.models.ImageEntry_Relation;
 import com.game.siwasu17.donutshole.models.ImageEntry_Selector;
 import com.game.siwasu17.donutshole.models.OrmaDatabase;
 import com.game.siwasu17.donutshole.services.TiqavService;
@@ -52,9 +53,17 @@ public class ImageRepository {
     }
 
     public void addFavorite(ImageEntry imageEntry){
-        Inserter<ImageEntry> inserter = mOrmaDatabase.prepareInsertIntoImageEntry();
-        inserter.execute(imageEntry);
-        //TODO: duplicate on updateっぽくしたい
+        ImageEntry.relation(mOrmaDatabase).upsert(imageEntry);
+    }
+
+    public void removeFavorite(ImageEntry imageEntry) {
+        //FIXME: エントリ削除を実装する
+    }
+
+    public List<ImageEntry> getFavoriteImages(){
+        //TODO: ちゃんとfaved_atがあるものだけ抽出したい
+        //これもsubscribe系にしたほうが統一感あってしっくりはくるかも
+        return mOrmaDatabase.selectFromImageEntry().toList();
     }
 
 

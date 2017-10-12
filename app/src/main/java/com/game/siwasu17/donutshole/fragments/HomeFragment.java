@@ -223,6 +223,11 @@ public class HomeFragment extends Fragment {
                             position, id, imageEntry.id)
             );
 
+            //FIXME: とりあえずお試しコード
+            ImageRepository imageRepository = new ImageRepository(getActivity());
+            System.out.println("FAVED: " + imageRepository.getFavoriteImages());
+
+
             //Bitmap取得のためのcallback
             Target mTarget = new Target() {
                 @Override
@@ -280,6 +285,7 @@ public class HomeFragment extends Fragment {
      */
     private void callTiqavService() {
         //Interfaceから実装を取得
+        /*
         TiqavService tiqavService = ServiceFactory.createTiqavService();
         Observable<ImageEntry[]> apiCall;
         if (null != searchWord && !searchWord.isEmpty()) {
@@ -296,9 +302,10 @@ public class HomeFragment extends Fragment {
             //TODO: searchNewestして、page番号をつけたらページネーションできるかも
             apiCall = tiqavService.searchRandom();
         }
-
+        */
         Toast.makeText(getContext(), "Loading...", Toast.LENGTH_SHORT).show();
 
+        //TODO:これもFragmentに紐付けていいかも
         ImageRepository imageRepository = new ImageRepository(getActivity());
         imageRepository.subscribeRandomImages(
                 imgs -> {
@@ -314,35 +321,5 @@ public class HomeFragment extends Fragment {
 
                     mGridView.invalidate();
                 });
-
-                            //ちょい制約を緩める
-                    /*
-                            OrmaDatabase orma = OrmaDatabase
-                                    .builder(getActivity())
-                                    .writeOnMainThread(BuildConfig.DEBUG ? AccessThreadConstraint.WARNING : AccessThreadConstraint.NONE)
-                                    .build();
-                            Inserter<ImageEntry> inserter = orma.prepareInsertIntoImageEntry();
-                            inserter.executeAll(Arrays.asList(imgs));
-
-                            ImageEntry_Selector selector = orma.selectFromImageEntry()
-                                    .orderByIdAsc();
-                            ImageEntry saved = selector.get(0);
-
-                            System.out.println(saved.getRealUrl());
-
-
-                            //リストに画像要素を追加していく
-                            // adapterで関連付けられているので要素追加するだけでOK
-                            mImageEntryList.addAll(Arrays.asList(imgs));
-                            if (null == mGridView.getAdapter()) {
-                                //初回だけGridViewにアダプタを関連付け
-                                mGridView.setAdapter(mHueAdapter);
-                            }
-
-                            mGridView.invalidate();
-                        }
-                        , Throwable::printStackTrace
-                );
-                */
     }
 }
