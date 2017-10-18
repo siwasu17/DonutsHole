@@ -10,8 +10,8 @@ import com.github.gfx.android.orma.annotation.Table;
 import java.sql.Timestamp;
 
 @Table
-public class ImageEntry{
-    @PrimaryKey(auto=false)
+public class ImageEntry {
+    @PrimaryKey(auto = false)
     public String id;
     @Column
     public String ext;
@@ -23,7 +23,7 @@ public class ImageEntry{
     @Column
     public String source_url;
 
-    @Column
+    @Column(indexed = true)
     @Nullable
     public Timestamp faved_at;
 
@@ -38,19 +38,19 @@ public class ImageEntry{
     }
 
     //サムネイル画像URL
-    public String getThumbUrl(){
+    public String getThumbUrl() {
         return "http://img.tiqav.com/" + this.id + ".th.jpg";
     }
 
     //実画像URL
-    public String getRealUrl(){
+    public String getRealUrl() {
         return "http://img.tiqav.com/" + this.id + "." + this.ext;
     }
 
     /**
      * Orma helper methods
      */
-    public static ImageEntry_Relation relation(OrmaDatabase orma){
+    public static ImageEntry_Relation relation(OrmaDatabase orma) {
         return orma.relationOfImageEntry().orderByIdDesc();
     }
 

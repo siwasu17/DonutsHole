@@ -53,7 +53,7 @@ public class MainActivity
             switch (item.getItemId()) {
                 case R.id.navigation_home:
                     //setFragment here
-                    setFragment(new HomeFragment());
+                    setFragment(HomeFragment.newInstance());
                     return true;
                 case R.id.navigation_dashboard:
                     return true;
@@ -75,7 +75,8 @@ public class MainActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        setFragment(new HomeFragment());
+        //デフォルトはHome
+        setFragment(HomeFragment.newInstance());
     }
 
 

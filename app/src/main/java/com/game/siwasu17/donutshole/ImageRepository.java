@@ -11,6 +11,7 @@ import com.game.siwasu17.donutshole.services.TiqavService;
 import com.github.gfx.android.orma.AccessThreadConstraint;
 import com.github.gfx.android.orma.Inserter;
 
+import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
 
@@ -37,7 +38,6 @@ public class ImageRepository {
     /**
      * 関数型インタフェースを渡して、非同期処理完了時にどんな処理をさせるかは外側で定義する
      */
-
     public void subscribeRandomImages(Consumer<ImageEntry[]> consumer) {
         mTiqavService.searchRandom()
                 .subscribeOn(Schedulers.io())
@@ -53,35 +53,19 @@ public class ImageRepository {
     }
 
     public void addFavorite(ImageEntry imageEntry){
+        //お気に入り時刻を更新しながらDBにupsert
+        imageEntry.faved_at = new Timestamp(System.currentTimeMillis());
         ImageEntry.relation(mOrmaDatabase).upsert(imageEntry);
     }
 
     public void removeFavorite(ImageEntry imageEntry) {
-        //FIXME: エントリ削除を実装する
+        ImageEntry.relation(mOrmaDatabase).idEq(imageEntry.id).deleter().execute();
     }
 
     public List<ImageEntry> getFavoriteImages(){
-        //TODO: ちゃんとfaved_atがあるものだけ抽出したい
-        //これもsubscribe系にしたほうが統一感あってしっくりはくるかも
-        return mOrmaDatabase.selectFromImageEntry().toList();
+        //お気に入り時刻が入っているものを返す
+        return ImageEntry.relation(mOrmaDatabase).faved_atIsNotNull().selector().toList();
     }
 
-
-/*
-    public List<ImageEntry> getFavedImages(){
-        OrmaDatabase orma = OrmaDatabase
-                .builder(getActivity())
-                .writeOnMainThread(BuildConfig.DEBUG ? AccessThreadConstraint.WARNING : AccessThreadConstraint.NONE)
-                .build();
-        Inserter<ImageEntry> inserter = orma.prepareInsertIntoImageEntry();
-        inserter.executeAll(Arrays.asList(imgs));
-
-        ImageEntry_Selector selector = orma.selectFromImageEntry()
-                .orderByIdAsc();
-        ImageEntry saved = selector.get(0);
-
-        System.out.println(saved.getRealUrl());
-    }
-    */
 
 }

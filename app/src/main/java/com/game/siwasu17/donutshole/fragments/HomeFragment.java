@@ -71,17 +71,9 @@ public class HomeFragment extends Fragment {
 
     public static final String IMAGE_CACHE_KEY = "IMAGE_CACHE_KEY";
 
-
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
     private OnFragmentInteractionListener mListener;
+
+    private ImageRepository mImageRepository;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -90,19 +82,10 @@ public class HomeFragment extends Fragment {
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
      * @return A new instance of fragment HomeFragment.
      */
-    // TODO: Rename and change types and number of parameters
-    public static HomeFragment newInstance(String param1, String param2) {
-        HomeFragment fragment = new HomeFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
+    public static HomeFragment newInstance(){
+        return new HomeFragment();
     }
 
 
@@ -128,10 +111,6 @@ public class HomeFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
 
@@ -140,13 +119,6 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_home, container, false);
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
     }
 
     @Override
@@ -158,12 +130,15 @@ public class HomeFragment extends Fragment {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
+
+        mImageRepository = new ImageRepository(getActivity());
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
+        mImageRepository = null;
     }
 
     /**
@@ -227,7 +202,6 @@ public class HomeFragment extends Fragment {
             ImageRepository imageRepository = new ImageRepository(getActivity());
             System.out.println("FAVED: " + imageRepository.getFavoriteImages());
 
-
             //Bitmap取得のためのcallback
             Target mTarget = new Target() {
                 @Override
@@ -284,25 +258,6 @@ public class HomeFragment extends Fragment {
      * TiqavのAPIを叩いてGridViewに画像を反映させる
      */
     private void callTiqavService() {
-        //Interfaceから実装を取得
-        /*
-        TiqavService tiqavService = ServiceFactory.createTiqavService();
-        Observable<ImageEntry[]> apiCall;
-        if (null != searchWord && !searchWord.isEmpty()) {
-            if (searchWordChanged) {
-                mImageEntryList.clear();
-                mGridView.setAdapter(null);
-                apiCall = tiqavService.search(searchWord);
-                searchWordChanged = false;
-            } else {
-                //do nothing
-                return;
-            }
-        } else {
-            //TODO: searchNewestして、page番号をつけたらページネーションできるかも
-            apiCall = tiqavService.searchRandom();
-        }
-        */
         Toast.makeText(getContext(), "Loading...", Toast.LENGTH_SHORT).show();
 
         //TODO:これもFragmentに紐付けていいかも
