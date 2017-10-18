@@ -1,5 +1,6 @@
 package com.game.siwasu17.donutshole;
 
+import android.app.Application;
 import android.content.Context;
 import android.media.Image;
 
@@ -24,15 +25,24 @@ import io.reactivex.schedulers.Schedulers;
  * ImageEntryを返すリポジトリ
  */
 public class ImageRepository {
+    private static ImageRepository instance;
     private TiqavService mTiqavService;
     private OrmaDatabase mOrmaDatabase;
 
-    public ImageRepository(Context context) {
+    private ImageRepository(Context context) {
         this.mTiqavService = ServiceFactory.createTiqavService();
         this.mOrmaDatabase = OrmaDatabase
                 .builder(context)
                 .writeOnMainThread(BuildConfig.DEBUG ? AccessThreadConstraint.WARNING : AccessThreadConstraint.NONE)
                 .build();
+    }
+
+    //利用都度に利用場所のcontextに紐付いて動くことにする
+    public static ImageRepository getInstance(Context context){
+        if(instance == null){
+            instance = new ImageRepository(context);
+        }
+        return instance;
     }
 
     /**

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -59,6 +60,8 @@ import io.reactivex.schedulers.Schedulers;
  * create an instance of this fragment.
  */
 public class HomeFragment extends Fragment {
+    //TODO: この辺のGridViewとAdapter系はもう少し集約したい
+    //Adapterは値オブジェクトっぽく扱えるはず
     private GridView mGridView;
     private HueAdapter mHueAdapter;
     private List<ImageEntry> mImageEntryList = new ArrayList<>();
@@ -72,8 +75,6 @@ public class HomeFragment extends Fragment {
     public static final String IMAGE_CACHE_KEY = "IMAGE_CACHE_KEY";
 
     private OnFragmentInteractionListener mListener;
-
-    private ImageRepository mImageRepository;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -131,14 +132,12 @@ public class HomeFragment extends Fragment {
                     + " must implement OnFragmentInteractionListener");
         }
 
-        mImageRepository = new ImageRepository(getActivity());
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
-        mImageRepository = null;
     }
 
     /**
@@ -198,10 +197,6 @@ public class HomeFragment extends Fragment {
                             position, id, imageEntry.id)
             );
 
-            //FIXME: とりあえずお試しコード
-            ImageRepository imageRepository = new ImageRepository(getActivity());
-            System.out.println("FAVED: " + imageRepository.getFavoriteImages());
-
             //Bitmap取得のためのcallback
             Target mTarget = new Target() {
                 @Override
@@ -220,7 +215,6 @@ public class HomeFragment extends Fragment {
 
                     System.out.println("Bitmap save: " + filePath.getAbsolutePath());
 
-                    //Intent intent = new Intent(MainActivity.this, ImageDetailActivity.class);
                     Intent intent = new Intent(getContext(), ImageDetailActivity.class);
                     //キャッシュファイルのパスを送信
                     intent.putExtra(IMAGE_CACHE_KEY, filePath.toString());
@@ -260,9 +254,9 @@ public class HomeFragment extends Fragment {
     private void callTiqavService() {
         Toast.makeText(getContext(), "Loading...", Toast.LENGTH_SHORT).show();
 
-        //TODO:これもFragmentに紐付けていいかも
-        ImageRepository imageRepository = new ImageRepository(getActivity());
-        imageRepository.subscribeRandomImages(
+        //リポジトリからランダム画像を引き出す
+        ImageRepository.getInstance(getActivity())
+                .subscribeRandomImages(
                 imgs -> {
                     System.out.println(imgs);
 
