@@ -10,7 +10,7 @@ import com.github.gfx.android.orma.annotation.Table;
 import java.sql.Timestamp;
 
 @Table
-public class ImageEntry {
+public class TiqavImageEntry {
     @PrimaryKey(auto = false)
     public String id;
     @Column
@@ -28,7 +28,7 @@ public class ImageEntry {
     public Timestamp faved_at;
 
     @Setter
-    public ImageEntry(String id, String ext, int height, int width, String source_url, Timestamp faved_at) {
+    public TiqavImageEntry(String id, String ext, int height, int width, String source_url, Timestamp faved_at) {
         this.id = id;
         this.ext = ext;
         this.height = height;
@@ -50,8 +50,8 @@ public class ImageEntry {
     /**
      * Orma helper methods
      */
-    public static ImageEntry_Relation relation(OrmaDatabase orma) {
-        return orma.relationOfImageEntry().orderByIdDesc();
+    public static TiqavImageEntry_Relation relation(OrmaDatabase orma) {
+        return orma.relationOfTiqavImageEntry().orderByIdDesc();
     }
 
 

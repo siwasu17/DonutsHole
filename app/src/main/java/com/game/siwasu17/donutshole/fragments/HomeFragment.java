@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -21,11 +20,9 @@ import android.widget.Toast;
 
 import com.game.siwasu17.donutshole.HueAdapter;
 import com.game.siwasu17.donutshole.ImageDetailActivity;
-import com.game.siwasu17.donutshole.ImageRepository;
-import com.game.siwasu17.donutshole.MainActivity;
+import com.game.siwasu17.donutshole.TiqavImageRepository;
 import com.game.siwasu17.donutshole.R;
-import com.game.siwasu17.donutshole.ServiceFactory;
-import com.game.siwasu17.donutshole.models.ImageEntry;
+import com.game.siwasu17.donutshole.models.TiqavImageEntry;
 
 /*
 import com.game.siwasu17.donutshole.models.ImageEntry_Selector;
@@ -34,7 +31,6 @@ import com.github.gfx.android.orma.AccessThreadConstraint;
 import com.github.gfx.android.orma.BuildConfig;
 import com.github.gfx.android.orma.Inserter;
 */
-import com.game.siwasu17.donutshole.services.TiqavService;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -45,10 +41,6 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
 
 
 /**
@@ -64,7 +56,7 @@ public class HomeFragment extends Fragment {
     //Adapterは値オブジェクトっぽく扱えるはず
     private GridView mGridView;
     private HueAdapter mHueAdapter;
-    private List<ImageEntry> mImageEntryList = new ArrayList<>();
+    private List<TiqavImageEntry> mTiqavImageEntryList = new ArrayList<>();
 
     SearchView mSearchView;
 
@@ -191,10 +183,10 @@ public class HomeFragment extends Fragment {
 
         //詳細画面への遷移
         mGridView.setOnItemClickListener((parent, view, position, id) -> {
-            ImageEntry imageEntry = mImageEntryList.get(position);
+            TiqavImageEntry tiqavImageEntry = mTiqavImageEntryList.get(position);
             System.out.println(
                     MessageFormat.format("pos: {0}, id: {1}, ImageID: {2}",
-                            position, id, imageEntry.id)
+                            position, id, tiqavImageEntry.id)
             );
 
             //Bitmap取得のためのcallback
@@ -205,7 +197,7 @@ public class HomeFragment extends Fragment {
 
                     File cachePath = new File(getActivity().getApplicationContext().getCacheDir(), "images");
                     cachePath.mkdirs();
-                    File filePath = new File(cachePath, imageEntry.id + ".jpg");
+                    File filePath = new File(cachePath, tiqavImageEntry.id + ".jpg");
 
                     try (FileOutputStream stream = new FileOutputStream(filePath)) {
                         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
@@ -236,13 +228,13 @@ public class HomeFragment extends Fragment {
             //実画像を取得して、画像詳細画面へ遷移
             //callbackが重なるためこんな作りになってる
             Picasso.with(getContext())
-                    .load(imageEntry.getRealUrl())
+                    .load(tiqavImageEntry.getRealUrl())
                     .into(mTarget);
 
         });
 
         //画像配列とそのアダプタを生成
-        mHueAdapter = new HueAdapter(getContext(), mImageEntryList);
+        mHueAdapter = new HueAdapter(getContext(), mTiqavImageEntryList);
         //初期画像のロード
         callTiqavService();
     }
@@ -255,14 +247,14 @@ public class HomeFragment extends Fragment {
         Toast.makeText(getContext(), "Loading...", Toast.LENGTH_SHORT).show();
 
         //リポジトリからランダム画像を引き出す
-        ImageRepository.getInstance(getActivity())
+        TiqavImageRepository.getInstance(getActivity())
                 .subscribeRandomImages(
                 imgs -> {
                     System.out.println(imgs);
 
                     //リストに画像要素を追加していく
                     // adapterで関連付けられているので要素追加するだけでOK
-                    mImageEntryList.addAll(Arrays.asList(imgs));
+                    mTiqavImageEntryList.addAll(Arrays.asList(imgs));
                     if (null == mGridView.getAdapter()) {
                         //初回だけGridViewにアダプタを関連付け
                         mGridView.setAdapter(mHueAdapter);

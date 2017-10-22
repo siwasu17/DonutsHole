@@ -1,15 +1,13 @@
 package com.game.siwasu17.donutshole;
 
 import android.content.Context;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.TextView;
 
-import com.game.siwasu17.donutshole.models.ImageEntry;
+import com.game.siwasu17.donutshole.models.TiqavImageEntry;
 //import com.game.siwasu17.donutshole.models.OrmaDatabase;
 import com.squareup.picasso.Picasso;
 
@@ -23,14 +21,14 @@ public class HueAdapter extends BaseAdapter {
     private Context mContext;
     private Picasso mPicasso;
     private LayoutInflater mLayoutInflater;
-    private List<ImageEntry> mImgEntryList;
+    private List<TiqavImageEntry> mImgEntryList;
 
     private static class ViewHolder {
         public ImageView hueImageView;
         public ImageView hueFavIcon;
     }
 
-    public HueAdapter(Context context, List<ImageEntry> imgEntryList) {
+    public HueAdapter(Context context, List<TiqavImageEntry> imgEntryList) {
         mContext = context;
         mLayoutInflater = LayoutInflater.from(context);
         mPicasso = Picasso.with(context);
@@ -66,7 +64,7 @@ public class HueAdapter extends BaseAdapter {
             holder.hueFavIcon.setOnClickListener(view -> {
                 System.out.println("Faved: " + i);
                 //お気に入りアイコン押下時の挙動
-                ImageRepository.getInstance(mContext).addFavorite(mImgEntryList.get(i));
+                TiqavImageRepository.getInstance(mContext).addFavorite(mImgEntryList.get(i));
             });
 
             //TODO: 画像の番号をきちんと関連付けられるようにしないと正しい画像がお気に入りされない
