@@ -8,16 +8,16 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
 import com.game.siwasu17.donutshole.models.TiqavImageEntry;
-//import com.game.siwasu17.donutshole.models.OrmaDatabase;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static android.R.drawable.btn_star_big_off;
 import static android.R.drawable.btn_star_big_on;
 
 
-public class HueAdapter extends BaseAdapter {
+public class TiqavImageAdapter extends BaseAdapter {
     private Context mContext;
     private Picasso mPicasso;
     private LayoutInflater mLayoutInflater;
@@ -28,18 +28,19 @@ public class HueAdapter extends BaseAdapter {
         public ImageView hueFavIcon;
     }
 
-    public HueAdapter(Context context, List<TiqavImageEntry> imgEntryList) {
+    public TiqavImageAdapter(Context context){
         mContext = context;
         mLayoutInflater = LayoutInflater.from(context);
         mPicasso = Picasso.with(context);
-        mImgEntryList = imgEntryList;
+        mImgEntryList = new ArrayList<>();
+    }
+
+    public void appendElements(List<TiqavImageEntry> tiqavImageEntryList){
+        this.mImgEntryList.addAll(tiqavImageEntryList);
     }
 
     @Override
     public int getCount() {
-        if (mImgEntryList == null) {
-            return 0;
-        }
         return mImgEntryList.size();
     }
 
@@ -82,6 +83,8 @@ public class HueAdapter extends BaseAdapter {
         }else{
             holder.hueFavIcon.setImageResource(btn_star_big_off);
         }
+
+        System.out.println("No." + i);
 
         //領域に合わせてロード
         mPicasso.load(mImgEntryList.get(i).getThumbUrl())

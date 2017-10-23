@@ -70,4 +70,6 @@ public class TiqavImageRepository {
         //お気に入り時刻が入っているものを返す
         return TiqavImageEntry.relation(mOrmaDatabase).faved_atIsNotNull().selector().toList();
     }
+
+
 }
