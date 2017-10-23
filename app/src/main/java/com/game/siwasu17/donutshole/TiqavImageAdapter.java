@@ -18,7 +18,6 @@ import static android.R.drawable.btn_star_big_on;
 
 
 public class TiqavImageAdapter extends BaseAdapter {
-    private Context mContext;
     private Picasso mPicasso;
     private LayoutInflater mLayoutInflater;
     private List<TiqavImageEntry> mImgEntryList;
@@ -29,7 +28,6 @@ public class TiqavImageAdapter extends BaseAdapter {
     }
 
     public TiqavImageAdapter(Context context){
-        mContext = context;
         mLayoutInflater = LayoutInflater.from(context);
         mPicasso = Picasso.with(context);
         mImgEntryList = new ArrayList<>();
@@ -61,15 +59,17 @@ public class TiqavImageAdapter extends BaseAdapter {
             convertView = mLayoutInflater.inflate(R.layout.grid_item_hue, null);
             holder = new ViewHolder();
             holder.hueImageView = (ImageView) convertView.findViewById(R.id.hue_imageview);
+
             holder.hueFavIcon = (ImageView) convertView.findViewById(R.id.hue_fav_icon);
             holder.hueFavIcon.setOnClickListener(view -> {
                 System.out.println("Faved: " + i);
+                //TODO: 画像の番号をきちんと関連付けられるようにしないと正しい画像がお気に入りされない
+                //毎回API呼び出ししてリストに入れているので、お気に入りが保存されない
+
                 //お気に入りアイコン押下時の挙動
-                TiqavImageRepository.getInstance(mContext).addFavorite(mImgEntryList.get(i));
+                //TiqavImageRepository.getInstance(mContext).addFavorite(holder.hueImageEntry);
             });
 
-            //TODO: 画像の番号をきちんと関連付けられるようにしないと正しい画像がお気に入りされない
-            //毎回API呼び出ししてリストに入れているので、お気に入りが保存されない
 
             convertView.setTag(holder);
         } else {
