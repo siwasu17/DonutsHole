@@ -71,5 +71,9 @@ public class TiqavImageRepository {
         return TiqavImageEntry.relation(mOrmaDatabase).faved_atIsNotNull().selector().toList();
     }
 
+    public boolean isFavoritedImage(TiqavImageEntry tiqavImageEntry){
+        //同じIDがいたらお気に入りに含まれているといえる
+        return !(TiqavImageEntry.relation(mOrmaDatabase).idEq(tiqavImageEntry.id).selector().toList().isEmpty());
+    }
 
 }
