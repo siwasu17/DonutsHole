@@ -7,10 +7,12 @@ import com.github.gfx.android.orma.annotation.PrimaryKey;
 import com.github.gfx.android.orma.annotation.Setter;
 import com.github.gfx.android.orma.annotation.Table;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 
 @Table
-public class TiqavImageEntry {
+public class TiqavImageEntry implements Serializable {
+
     @PrimaryKey(auto = false)
     public String id;
     @Column
@@ -27,6 +29,8 @@ public class TiqavImageEntry {
     @Nullable
     public Timestamp faved_at;
 
+    private static final String TIQAV_BASE_URL = "http://img.tiqav.com/";
+
     @Setter
     public TiqavImageEntry(String id, String ext, int height, int width, String source_url, Timestamp faved_at) {
         this.id = id;
@@ -39,12 +43,12 @@ public class TiqavImageEntry {
 
     //サムネイル画像URL
     public String getThumbUrl() {
-        return "http://img.tiqav.com/" + this.id + ".th.jpg";
+        return TIQAV_BASE_URL + this.id + ".th.jpg";
     }
 
     //実画像URL
     public String getRealUrl() {
-        return "http://img.tiqav.com/" + this.id + "." + this.ext;
+        return TIQAV_BASE_URL + this.id + "." + this.ext;
     }
 
     /**

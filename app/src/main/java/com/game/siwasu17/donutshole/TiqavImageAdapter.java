@@ -73,9 +73,9 @@ public class TiqavImageAdapter extends BaseAdapter {
 
         holder.hueFavIcon.setOnClickListener(new FavClickEvent(i));
 
-        if(mTiqavImageRepository.isFavoritedImage(mImgEntryList.get(i))){
+        if (mTiqavImageRepository.isFavoritedImage(mImgEntryList.get(i))) {
             holder.hueFavIcon.setImageResource(btn_star_big_on);
-        }else{
+        } else {
             holder.hueFavIcon.setImageResource(btn_star_big_off);
         }
 
@@ -100,10 +100,9 @@ public class TiqavImageAdapter extends BaseAdapter {
             if (v != null) {
                 System.out.println("Faved: " + this.indexNo);
                 //内部クラスとして外部クラスのフィールドを利用(できれば治したい)
-                //クリックされた位置に該当する画像をお気に入りする
-                mTiqavImageRepository.addFavorite(mImgEntryList.get(indexNo));
+                mTiqavImageRepository.toggleFavorite(mImgEntryList.get(indexNo));
 
-                //TODO: 追加されていたら削除しないとだめ
+                //TODO: 上位のViewに更新があったことを通知したい(押した瞬間に画像を変更したい)
             }
         }
     }

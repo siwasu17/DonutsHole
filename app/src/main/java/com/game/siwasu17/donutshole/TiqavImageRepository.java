@@ -66,6 +66,15 @@ public class TiqavImageRepository {
         TiqavImageEntry.relation(mOrmaDatabase).idEq(tiqavImageEntry.id).deleter().execute();
     }
 
+    public void toggleFavorite(TiqavImageEntry tiqavImageEntry){
+        //お気に入りのOn/Offを切り替え
+        if(isFavoritedImage(tiqavImageEntry)){
+            removeFavorite(tiqavImageEntry);
+        }else{
+            addFavorite(tiqavImageEntry);
+        }
+    }
+
     public List<TiqavImageEntry> getFavoriteImages(){
         //お気に入り時刻が入っているものを返す
         return TiqavImageEntry.relation(mOrmaDatabase).faved_atIsNotNull().selector().toList();

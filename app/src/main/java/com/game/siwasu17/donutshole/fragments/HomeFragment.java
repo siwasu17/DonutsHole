@@ -1,6 +1,9 @@
 package com.game.siwasu17.donutshole.fragments;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -15,12 +18,19 @@ import android.widget.AbsListView;
 import android.widget.GridView;
 import android.widget.Toast;
 
+import com.game.siwasu17.donutshole.ImageDetailActivity;
 import com.game.siwasu17.donutshole.ServiceFactory;
 import com.game.siwasu17.donutshole.TiqavImageAdapter;
 import com.game.siwasu17.donutshole.TiqavImageRepository;
 import com.game.siwasu17.donutshole.R;
+import com.game.siwasu17.donutshole.models.TiqavImageEntry;
 import com.game.siwasu17.donutshole.services.TiqavService;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Arrays;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -49,7 +59,8 @@ public class HomeFragment extends Fragment {
     //検索ワード
     String searchWord;
 
-    public static final String IMAGE_CACHE_KEY = "IMAGE_CACHE_KEY";
+    //public static final String IMAGE_CACHE_KEY = "IMAGE_CACHE_KEY";
+    public static final String IMAGE_ENTRY_KEY = "IMAGE_ENTRY_KEY";
 
     private OnFragmentInteractionListener mListener;
 
@@ -64,6 +75,8 @@ public class HomeFragment extends Fragment {
      * @return A new instance of fragment HomeFragment.
      */
     public static HomeFragment newInstance() {
+
+        //TODO: ここで通常かお気に入り画面かのパラメータを受け取るのが良さそう
         return new HomeFragment();
     }
 
@@ -118,16 +131,6 @@ public class HomeFragment extends Fragment {
         mListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
@@ -169,8 +172,14 @@ public class HomeFragment extends Fragment {
 
         //詳細画面への遷移
         mGridView.setOnItemClickListener((parent, view, position, id) -> {
-            /*
+            Intent intent = new Intent(getContext(), ImageDetailActivity.class);
+            //キャッシュファイルのパスを送信
+            TiqavImageEntry clickedImageEntry = (TiqavImageEntry) parent.getAdapter().getItem((int) id);
+            intent.putExtra(IMAGE_ENTRY_KEY, clickedImageEntry);
+            startActivity(intent);
+
             //Bitmap取得のためのcallback
+            /*
             Target mTarget = new Target() {
                 @Override
                 public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
@@ -212,6 +221,7 @@ public class HomeFragment extends Fragment {
                     .load(tiqavImageEntry.getRealUrl())
                     .into(mTarget);
             */
+
         });
 
         mTiqavImageAdapter = new TiqavImageAdapter(getContext());
@@ -224,6 +234,7 @@ public class HomeFragment extends Fragment {
      * TiqavのAPIを叩いてGridViewに画像を反映させる
      */
     private void callTiqavService() {
+        //TODO: リスト取得と画面反映が密になっているので分離したい
         Toast.makeText(getContext(), "Loading...", Toast.LENGTH_SHORT).show();
 
         TiqavService tiqavService = ServiceFactory.createTiqavService();

@@ -20,23 +20,19 @@ public class MainActivity
 
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = new BottomNavigationView.OnNavigationItemSelectedListener() {
-        @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.navigation_home:
-                    //setFragment here
-                    setFragment(HomeFragment.newInstance());
-                    return true;
-                case R.id.navigation_dashboard:
-                    return true;
-                case R.id.navigation_notifications:
-                    return true;
-            }
-            return false;
-        }
-
-    };
+            = item -> {
+                switch (item.getItemId()) {
+                    case R.id.navigation_home:
+                        //setFragment here
+                        setFragment(HomeFragment.newInstance());
+                        return true;
+                    case R.id.navigation_dashboard:
+                        return true;
+                    case R.id.navigation_notifications:
+                        return true;
+                }
+                return false;
+            };
 
     private void setFragment(Fragment fragment) {
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
