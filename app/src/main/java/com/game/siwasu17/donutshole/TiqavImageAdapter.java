@@ -36,7 +36,10 @@ public class TiqavImageAdapter extends BaseAdapter {
     }
 
     public void appendElements(List<TiqavImageEntry> tiqavImageEntryList) {
-        this.mImgEntryList.addAll(tiqavImageEntryList);
+        for(TiqavImageEntry e: tiqavImageEntryList){
+            System.out.println("Append: " + e.getRealUrl() + " : " + e.faved_at);
+            this.mImgEntryList.add(e);
+        }
     }
 
     @Override
@@ -56,7 +59,6 @@ public class TiqavImageAdapter extends BaseAdapter {
 
     @Override
     public View getView(int i, View convertView, ViewGroup viewGroup) {
-//        System.out.println("getView: " + i);
 
         ViewHolder holder;
         if (convertView == null) {

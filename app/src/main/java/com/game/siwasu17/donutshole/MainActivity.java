@@ -18,15 +18,19 @@ public class MainActivity
         implements
         HomeFragment.OnFragmentInteractionListener{
 
+    HomeFragment defaultHomeFragment;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = item -> {
                 switch (item.getItemId()) {
                     case R.id.navigation_home:
-                        //setFragment here
-                        setFragment(HomeFragment.newInstance());
+                        if(defaultHomeFragment == null){
+                            defaultHomeFragment = HomeFragment.newInstance(HomeFragment.MODE_HOME);
+                        }
+                        setFragment(defaultHomeFragment);
                         return true;
                     case R.id.navigation_dashboard:
+                        setFragment(HomeFragment.newInstance(HomeFragment.MODE_FAV));
                         return true;
                     case R.id.navigation_notifications:
                         return true;
@@ -36,7 +40,7 @@ public class MainActivity
 
     private void setFragment(Fragment fragment) {
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        transaction.add(R.id.main_container, fragment);
+        transaction.replace(R.id.main_container, fragment);
         transaction.commit();
     }
 
@@ -45,7 +49,12 @@ public class MainActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         //デフォルトはHome
-        setFragment(HomeFragment.newInstance());
+        defaultHomeFragment = HomeFragment.newInstance(HomeFragment.MODE_HOME);
+        setFragment(defaultHomeFragment);
+
+        BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.navigation);
+        bottomNavigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
     }
 
 

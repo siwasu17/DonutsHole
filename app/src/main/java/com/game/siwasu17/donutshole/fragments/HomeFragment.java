@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
@@ -48,8 +49,6 @@ import io.reactivex.schedulers.Schedulers;
  * create an instance of this fragment.
  */
 public class HomeFragment extends Fragment {
-    //TODO: この辺のGridViewとAdapter系はもう少し集約したい
-    //Adapterは値オブジェクトっぽく扱えるはず
     private GridView mGridView;
     private TiqavImageAdapter mTiqavImageAdapter;
 
@@ -59,8 +58,13 @@ public class HomeFragment extends Fragment {
     //検索ワード
     String searchWord;
 
-    //public static final String IMAGE_CACHE_KEY = "IMAGE_CACHE_KEY";
     public static final String IMAGE_ENTRY_KEY = "IMAGE_ENTRY_KEY";
+
+    public static final String ARG_MODE = "ARG_MODE";
+
+    public static final String MODE_HOME = "MODE_HOME";
+    public static final String MODE_FAV = "MODE_FAV";
+
 
     private OnFragmentInteractionListener mListener;
 
@@ -74,10 +78,12 @@ public class HomeFragment extends Fragment {
      *
      * @return A new instance of fragment HomeFragment.
      */
-    public static HomeFragment newInstance() {
-
-        //TODO: ここで通常かお気に入り画面かのパラメータを受け取るのが良さそう
-        return new HomeFragment();
+    public static HomeFragment newInstance(String mode) {
+        HomeFragment fragment = new HomeFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_MODE, mode);
+        fragment.setArguments(args);
+        return fragment;
     }
 
 
@@ -117,7 +123,7 @@ public class HomeFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
+            this.mListener = (OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -128,7 +134,7 @@ public class HomeFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
+        this.mListener = null;
     }
 
     public interface OnFragmentInteractionListener {
@@ -143,33 +149,6 @@ public class HomeFragment extends Fragment {
 
         mGridView = (GridView) currentView.findViewById(R.id.gridview);
 
-        mGridView.setOnScrollListener(new AbsListView.OnScrollListener() {
-            private boolean loading = true;
-
-            @Override
-            public void onScrollStateChanged(AbsListView absListView, int i) {
-
-            }
-
-            @Override
-            public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if (totalItemCount == (firstVisibleItem + visibleItemCount)) {
-                    if (!loading) {
-                        int pos = absListView.getFirstVisiblePosition();
-                        //ロード中でなければロード
-                        System.out.println("Load! " + pos);
-
-                        loading = true;
-                        callTiqavService();
-                    }
-                } else {
-                    loading = false;
-                }
-
-            }
-        });
-
-
         //詳細画面への遷移
         mGridView.setOnItemClickListener((parent, view, position, id) -> {
             Intent intent = new Intent(getContext(), ImageDetailActivity.class);
@@ -177,64 +156,56 @@ public class HomeFragment extends Fragment {
             TiqavImageEntry clickedImageEntry = (TiqavImageEntry) parent.getAdapter().getItem((int) id);
             intent.putExtra(IMAGE_ENTRY_KEY, clickedImageEntry);
             startActivity(intent);
-
-            //Bitmap取得のためのcallback
-            /*
-            Target mTarget = new Target() {
-                @Override
-                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                    System.out.println("Bitmap get complete");
-
-                    File cachePath = new File(getActivity().getApplicationContext().getCacheDir(), "images");
-                    cachePath.mkdirs();
-                    File filePath = new File(cachePath, tiqavImageEntry.id + ".jpg");
-
-                    try (FileOutputStream stream = new FileOutputStream(filePath)) {
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-                    System.out.println("Bitmap save: " + filePath.getAbsolutePath());
-
-                    Intent intent = new Intent(getContext(), ImageDetailActivity.class);
-                    //キャッシュファイルのパスを送信
-                    intent.putExtra(IMAGE_CACHE_KEY, filePath.toString());
-                    startActivity(intent);
-
-                }
-
-                @Override
-                public void onBitmapFailed(Drawable errorDrawable) {
-                    System.out.println("Bitmap load failed");
-                }
-
-                @Override
-                public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-                }
-            };
-
-            //実画像を取得して、画像詳細画面へ遷移
-            //callbackが重なるためこんな作りになってる
-            Picasso.with(getContext())
-                    .load(tiqavImageEntry.getRealUrl())
-                    .into(mTarget);
-            */
-
         });
 
         mTiqavImageAdapter = new TiqavImageAdapter(getContext());
-        //初期画像のロード
-        callTiqavService();
+
+        Bundle args = this.getArguments();
+        //TODO: 汎用化できそうならクラス分ける
+        switch(args.getString(ARG_MODE)){
+            case MODE_HOME:
+                mGridView.setOnScrollListener(new AbsListView.OnScrollListener() {
+                    private boolean loading = true;
+
+                    @Override
+                    public void onScrollStateChanged(AbsListView absListView, int i) {
+
+                    }
+
+                    @Override
+                    public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                        if (totalItemCount == (firstVisibleItem + visibleItemCount)) {
+                            if (!loading) {
+                                int pos = absListView.getFirstVisiblePosition();
+                                //ロード中でなければロード
+                                System.out.println("Load! " + pos);
+
+                                loading = true;
+                                appendRandomImages();
+                            }
+                        } else {
+                            loading = false;
+                        }
+
+                    }
+                });
+
+                //初期画像のロード
+                appendRandomImages();
+                break;
+            case MODE_FAV:
+                showFavedImages();
+                break;
+            default:
+                throw new RuntimeException("Unknown mode");
+        }
     }
 
 
     /**
      * TiqavのAPIを叩いてGridViewに画像を反映させる
      */
-    private void callTiqavService() {
-        //TODO: リスト取得と画面反映が密になっているので分離したい
+    private void appendRandomImages() {
         Toast.makeText(getContext(), "Loading...", Toast.LENGTH_SHORT).show();
 
         TiqavService tiqavService = ServiceFactory.createTiqavService();
@@ -249,5 +220,14 @@ public class HomeFragment extends Fragment {
                     }
                     mGridView.invalidate();
                 });
+    }
+
+
+    private void showFavedImages(){
+        //お気に入り画像を取得して登録
+        List<TiqavImageEntry> entryList = TiqavImageRepository.getInstance(this.getContext()).getFavoriteImages();
+        mTiqavImageAdapter.appendElements(entryList);
+        mGridView.setAdapter(mTiqavImageAdapter);
+        mGridView.invalidate();
     }
 }

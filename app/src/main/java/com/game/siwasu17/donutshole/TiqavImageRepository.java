@@ -77,7 +77,7 @@ public class TiqavImageRepository {
 
     public List<TiqavImageEntry> getFavoriteImages(){
         //お気に入り時刻が入っているものを返す
-        return TiqavImageEntry.relation(mOrmaDatabase).faved_atIsNotNull().selector().toList();
+        return TiqavImageEntry.relation(mOrmaDatabase).orderByFaved_atAsc().faved_atIsNotNull().selector().toList();
     }
 
     public boolean isFavoritedImage(TiqavImageEntry tiqavImageEntry){
