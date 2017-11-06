@@ -36,10 +36,16 @@ public class TiqavImageAdapter extends BaseAdapter {
     }
 
     public void appendElements(List<TiqavImageEntry> tiqavImageEntryList) {
-        for(TiqavImageEntry e: tiqavImageEntryList){
-            System.out.println("Append: " + e.getRealUrl() + " : " + e.faved_at);
-            this.mImgEntryList.add(e);
-        }
+        mImgEntryList.addAll(tiqavImageEntryList);
+
+        //お気に入りした日付順でソート
+        mImgEntryList.sort((a, b) -> {
+            if (a.faved_at == null || b.faved_at == null) {
+                return 0;
+            } else {
+                return b.faved_at.compareTo(a.faved_at);
+            }
+        });
     }
 
     @Override
@@ -84,7 +90,7 @@ public class TiqavImageAdapter extends BaseAdapter {
         return convertView;
     }
 
-    public void toggleFavIcon(int index, ImageView favIconView){
+    private void toggleFavIcon(int index, ImageView favIconView) {
         if (mTiqavImageRepository.isFavoritedImage(mImgEntryList.get(index))) {
             favIconView.setImageResource(btn_star_big_on);
         } else {
@@ -93,7 +99,7 @@ public class TiqavImageAdapter extends BaseAdapter {
     }
 
 
-    public class FavClickEvent implements View.OnClickListener {
+    private class FavClickEvent implements View.OnClickListener {
         private int indexNo;
 
         public FavClickEvent(int i) {
@@ -108,7 +114,7 @@ public class TiqavImageAdapter extends BaseAdapter {
                 TiqavImageEntry entry = mImgEntryList.get(indexNo);
                 mTiqavImageRepository.toggleFavorite(entry);
 
-                toggleFavIcon(indexNo,(ImageView)v);
+                toggleFavIcon(indexNo, (ImageView) v);
             }
         }
     }
