@@ -74,12 +74,7 @@ public class TiqavImageAdapter extends BaseAdapter {
         }
 
         holder.hueFavIcon.setOnClickListener(new FavClickEvent(i));
-
-        if (mTiqavImageRepository.isFavoritedImage(mImgEntryList.get(i))) {
-            holder.hueFavIcon.setImageResource(btn_star_big_on);
-        } else {
-            holder.hueFavIcon.setImageResource(btn_star_big_off);
-        }
+        toggleFavIcon(i, holder.hueFavIcon);
 
         //領域に合わせてロード
         mPicasso.load(mImgEntryList.get(i).getThumbUrl())
@@ -87,6 +82,14 @@ public class TiqavImageAdapter extends BaseAdapter {
                 .centerInside()
                 .into(holder.hueImageView);
         return convertView;
+    }
+
+    public void toggleFavIcon(int index, ImageView favIconView){
+        if (mTiqavImageRepository.isFavoritedImage(mImgEntryList.get(index))) {
+            favIconView.setImageResource(btn_star_big_on);
+        } else {
+            favIconView.setImageResource(btn_star_big_off);
+        }
     }
 
 
@@ -102,9 +105,10 @@ public class TiqavImageAdapter extends BaseAdapter {
             if (v != null) {
                 System.out.println("Faved: " + this.indexNo);
                 //内部クラスとして外部クラスのフィールドを利用(できれば治したい)
-                mTiqavImageRepository.toggleFavorite(mImgEntryList.get(indexNo));
+                TiqavImageEntry entry = mImgEntryList.get(indexNo);
+                mTiqavImageRepository.toggleFavorite(entry);
 
-                //TODO: 上位のViewに更新があったことを通知したい(押した瞬間に画像を変更したい)
+                toggleFavIcon(indexNo,(ImageView)v);
             }
         }
     }
