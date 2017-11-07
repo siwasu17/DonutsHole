@@ -10,6 +10,7 @@ import android.app.Fragment;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -65,6 +66,33 @@ public class HomeFragment extends Fragment {
     public static final String MODE_HOME = "MODE_HOME";
     public static final String MODE_FAV = "MODE_FAV";
 
+
+    private AbsListView.OnScrollListener mScrollListener =
+            new AbsListView.OnScrollListener() {
+                private boolean loading = true;
+
+                @Override
+                public void onScrollStateChanged(AbsListView absListView, int i) {
+
+                }
+
+                @Override
+                public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                    if (totalItemCount == (firstVisibleItem + visibleItemCount)) {
+                        if (!loading) {
+                            int pos = absListView.getFirstVisiblePosition();
+                            //ロード中でなければロード
+                            System.out.println("Load! " + pos);
+
+                            loading = true;
+                            appendRandomImages();
+                        }
+                    } else {
+                        loading = false;
+                    }
+
+                }
+            };
 
     private OnFragmentInteractionListener mListener;
 
@@ -128,7 +156,6 @@ public class HomeFragment extends Fragment {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
-
     }
 
     @Override
@@ -162,34 +189,9 @@ public class HomeFragment extends Fragment {
 
         Bundle args = this.getArguments();
         //TODO: 汎用化できそうならクラス分ける
-        switch(args.getString(ARG_MODE)){
+        switch (args.getString(ARG_MODE)) {
             case MODE_HOME:
-                mGridView.setOnScrollListener(new AbsListView.OnScrollListener() {
-                    private boolean loading = true;
-
-                    @Override
-                    public void onScrollStateChanged(AbsListView absListView, int i) {
-
-                    }
-
-                    @Override
-                    public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                        if (totalItemCount == (firstVisibleItem + visibleItemCount)) {
-                            if (!loading) {
-                                int pos = absListView.getFirstVisiblePosition();
-                                //ロード中でなければロード
-                                System.out.println("Load! " + pos);
-
-                                loading = true;
-                                appendRandomImages();
-                            }
-                        } else {
-                            loading = false;
-                        }
-
-                    }
-                });
-
+                mGridView.setOnScrollListener(mScrollListener);
                 //初期画像のロード
                 appendRandomImages();
                 break;
@@ -201,6 +203,15 @@ public class HomeFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        if (!hidden) {
+            if (MODE_FAV.equals(getArguments().getString(ARG_MODE))) {
+                showFavedImages();
+            }
+        }
+    }
 
     /**
      * TiqavのAPIを叩いてGridViewに画像を反映させる
@@ -223,11 +234,14 @@ public class HomeFragment extends Fragment {
     }
 
 
-    private void showFavedImages(){
+    private void showFavedImages() {
         //お気に入り画像を取得して登録
         List<TiqavImageEntry> entryList = TiqavImageRepository.getInstance(this.getContext()).getFavoriteImages();
+        //こちらはまっさらな状態にする
+        mTiqavImageAdapter = new TiqavImageAdapter(getContext());
         mTiqavImageAdapter.appendElements(entryList);
         mGridView.setAdapter(mTiqavImageAdapter);
         mGridView.invalidate();
     }
+
 }

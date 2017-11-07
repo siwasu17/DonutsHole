@@ -12,35 +12,54 @@ import android.view.MenuItem;
 
 import com.game.siwasu17.donutshole.fragments.HomeFragment;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 public class MainActivity
         extends AppCompatActivity
         implements
-        HomeFragment.OnFragmentInteractionListener{
+        HomeFragment.OnFragmentInteractionListener {
 
-    HomeFragment defaultHomeFragment;
+    private Map<String, Fragment> fragmentMap = new HashMap<>();
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = item -> {
-                switch (item.getItemId()) {
-                    case R.id.navigation_home:
-                        if(defaultHomeFragment == null){
-                            defaultHomeFragment = HomeFragment.newInstance(HomeFragment.MODE_HOME);
-                        }
-                        setFragment(defaultHomeFragment);
-                        return true;
-                    case R.id.navigation_dashboard:
-                        setFragment(HomeFragment.newInstance(HomeFragment.MODE_FAV));
-                        return true;
-                    case R.id.navigation_notifications:
-                        return true;
-                }
-                return false;
-            };
+        switch (item.getItemId()) {
+            case R.id.navigation_home:
+                hideAllFragments();
+                showFragment(HomeFragment.MODE_HOME);
+                return true;
+            case R.id.navigation_dashboard:
+                hideAllFragments();
+                showFragment(HomeFragment.MODE_FAV);
+                return true;
+            case R.id.navigation_notifications:
+                return true;
+        }
+        return false;
+    };
 
-    private void setFragment(Fragment fragment) {
+
+    private void showFragment(String modeKey) {
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        transaction.replace(R.id.main_container, fragment);
+        transaction.show(fragmentMap.get(modeKey));
+        transaction.commit();
+    }
+
+    private void hideAllFragments(){
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        for (Fragment fragment : fragmentMap.values()) {
+            transaction.hide(fragment);
+        }
+        transaction.commit();
+    }
+
+    private void registerAllFragments(){
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        for (Fragment fragment : fragmentMap.values()) {
+            transaction.add(R.id.main_container, fragment);
+        }
         transaction.commit();
     }
 
@@ -48,15 +67,20 @@ public class MainActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //デフォルトはHome
-        defaultHomeFragment = HomeFragment.newInstance(HomeFragment.MODE_HOME);
-        setFragment(defaultHomeFragment);
+
+        fragmentMap.clear();
+        fragmentMap.put(HomeFragment.MODE_HOME, HomeFragment.newInstance(HomeFragment.MODE_HOME));
+        fragmentMap.put(HomeFragment.MODE_FAV, HomeFragment.newInstance(HomeFragment.MODE_FAV));
+
+        //使用するFragmentを登録しておく
+        registerAllFragments();
+        hideAllFragments();
+        showFragment(HomeFragment.MODE_HOME);
 
         BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
     }
-
 
 
     @Override
@@ -89,7 +113,6 @@ public class MainActivity
 
         return true;
     }
-
 
 
     @Override

@@ -35,6 +35,7 @@ public class TiqavImageAdapter extends BaseAdapter {
         mImgEntryList = new ArrayList<>();
     }
 
+
     public void appendElements(List<TiqavImageEntry> tiqavImageEntryList) {
         mImgEntryList.addAll(tiqavImageEntryList);
 
