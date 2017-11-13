@@ -6,7 +6,9 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.app.FragmentTransaction;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -22,6 +24,8 @@ public class MainActivity
         HomeFragment.OnFragmentInteractionListener {
 
     private Map<String, Fragment> fragmentMap = new HashMap<>();
+
+    private SearchView mSearchView;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = item -> {
@@ -87,8 +91,6 @@ public class MainActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         // 検索バーを追加(必須)
-        /*
-        //TODO: あとで直す
         getMenuInflater().inflate(R.menu.main, menu);
 
         MenuItem menuItem = menu.findItem(R.id.search_menu_search_view);
@@ -98,8 +100,8 @@ public class MainActivity
 
             @Override
             public boolean onQueryTextSubmit(String query) {
-                setSearchWord(query);
-                callTiqavService();
+                //TODO: 検索結果画面を起動してそこにクエリを渡す
+                System.out.println("Query: " + query);
                 return false;
             }
 
@@ -109,7 +111,6 @@ public class MainActivity
             }
         });
 
-        */
 
         return true;
     }
