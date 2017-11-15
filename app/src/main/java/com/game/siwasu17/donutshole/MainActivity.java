@@ -25,8 +25,6 @@ public class MainActivity
 
     private Map<String, Fragment> fragmentMap = new HashMap<>();
 
-    private SearchView mSearchView;
-
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = item -> {
         switch (item.getItemId()) {
@@ -85,36 +83,6 @@ public class MainActivity
         bottomNavigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
     }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        // 検索バーを追加(必須)
-        getMenuInflater().inflate(R.menu.main, menu);
-
-        MenuItem menuItem = menu.findItem(R.id.search_menu_search_view);
-        mSearchView = (SearchView) MenuItemCompat.getActionView(menuItem);
-
-        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                //TODO: 検索結果画面を起動してそこにクエリを渡す
-                System.out.println("Query: " + query);
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                return false;
-            }
-        });
-
-
-        return true;
-    }
-
 
     @Override
     public void onFragmentInteraction(Uri uri) {
