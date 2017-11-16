@@ -35,6 +35,8 @@ dependencies {
     compile group: 'io.reactivex.rxjava2', name: 'rxjava', version: '2.1.0'
     compile group: 'io.reactivex.rxjava2', name: 'rxandroid', version: '2.0.1'
 
+
+
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support:design:25.3.1'
     compile 'com.squareup.retrofit2:retrofit:2.2.0'
@@ -43,12 +45,10 @@ dependencies {
     compile 'com.squareup.okhttp3:okhttp:3.4.1'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    annotationProcessor 'com.github.gfx.android.orma:orma-processor:4.2.5'
     compile 'com.github.gfx.android.orma:orma:4.2.5'
-
     compile 'com.google.firebase:firebase-core:10.2.6'
-
     testCompile 'junit:junit:4.12'
+    annotationProcessor 'com.github.gfx.android.orma:orma-processor:4.2.5'
 }
 
 apply plugin: 'com.google.gms.google-services'

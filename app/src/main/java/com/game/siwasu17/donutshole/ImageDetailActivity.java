@@ -1,6 +1,7 @@
 package com.game.siwasu17.donutshole;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -23,6 +24,7 @@ import java.io.IOException;
 public class ImageDetailActivity extends AppCompatActivity {
 
     public static final String FILEPROVIDER_AUTHORITY = "com.game.siwasu17.donutshole.fileprovider";
+    public static final String IMAGE_SAVED_PATH_KEY = "IMAGE_SAVED_PATH_KEY";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +70,7 @@ public class ImageDetailActivity extends AppCompatActivity {
                         filePath
                 );
 
+                //シェアボタン
                 Button shareButton = (Button) findViewById(R.id.share_button);
                 shareButton.setOnClickListener(view -> {
 
@@ -88,6 +91,20 @@ public class ImageDetailActivity extends AppCompatActivity {
                 });
                 //準備が整ったらボタンを押せるようにする
                 shareButton.setEnabled(true);
+
+
+                //編集ボタン
+                //保存した画像パスを渡す
+                Button editButton = (Button) findViewById(R.id.edit_button);
+                editButton.setOnClickListener(view -> {
+
+                    Intent intent = new Intent(context, ImageEditActivity.class);
+                    //保存したファイルのパスを送信
+                    intent.putExtra(IMAGE_SAVED_PATH_KEY, filePath.getAbsolutePath());
+                    startActivity(intent);
+                });
+                //準備が整ったらボタンを押せるようにする
+                editButton.setEnabled(true);
             }
 
             @Override

@@ -22,20 +22,26 @@
             </intent-filter>
         </activity>
         <!-- 画像の詳細画面 -->
-        <activity android:name=".ImageDetailActivity"
-                  android:theme="@style/Theme.AppCompat.NoActionBar">
-
+        <activity
+            android:name=".ImageDetailActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar">
+        </activity>
+        <!-- 画像の編集画面 -->
+        <activity
+            android:name=".ImageEditActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar">
         </activity>
 
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="com.game.siwasu17.donutshole.fileprovider"
-            android:grantUriPermissions="true"
-            android:exported="false">
+            android:exported="false"
+            android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/filepaths" />
+                android:resource="@xml/filepaths"/>
         </provider>
+
     </application>
 
 </manifest>
